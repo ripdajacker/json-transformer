@@ -1,0 +1,20 @@
+{
+  "root": {
+    "ned": {
+      "son": {
+        "name": "Jon Snow",
+        "status": "alive",
+        "age": 16
+      }
+    },
+    "castle-black": {
+      "residents": [
+        {
+          "name": "Aemon Targaryen",
+          "title": "Maester",
+          "age": 104
+        }
+      ]
+    }
+  }
+}
