@@ -9,7 +9,7 @@ This is part of my masters thesis and is a work in progress.
 
 Given a JSON document:
 
-```
+```json
 {
     "destination": {
         "value": 42
@@ -22,13 +22,13 @@ Given a JSON document:
 
 Implementing a JsonSelect-like query language with a builder one can write:
 
-```
+```groovy
 new Transformer("source").moveTo("destination").apply(document)   
 ```
 
 The resulting JSON will be:
 
-```
+```json
 {
     "destination": {
         "value": 42,
