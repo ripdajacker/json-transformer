@@ -8,10 +8,7 @@ import groovy.transform.TypeChecked
 import groovy.util.logging.Log
 
 /**
- * TODO - someone remind me to document this class 
- *
- * @author Jesenko Mehmedbasic
- * created 10/15/2015.
+ * Moves nodes from one place to another.
  */
 @TypeChecked
 @PackageScope

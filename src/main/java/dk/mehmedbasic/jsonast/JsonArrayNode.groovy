@@ -3,10 +3,7 @@ package dk.mehmedbasic.jsonast
 import groovy.transform.TypeChecked
 
 /**
- * TODO - someone remind me to document this class 
- *
- * @author Jesenko Mehmedbasic
- * created 10/15/2015.
+ * A JsonArray.
  */
 @TypeChecked
 class JsonArrayNode extends BaseNode {

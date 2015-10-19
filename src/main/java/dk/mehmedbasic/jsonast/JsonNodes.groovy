@@ -26,6 +26,9 @@ class JsonNodes implements Iterable<BaseNode> {
 
     JsonNodes select(String selector) {
         checkDirtyState()
+        if (selector == null || selector.trim().isEmpty()) {
+            return this;
+        }
         def engine = new JsonSelectionEngine(selector)
         engine.execute(this)
     }
