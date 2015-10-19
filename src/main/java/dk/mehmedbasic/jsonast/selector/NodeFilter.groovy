@@ -3,7 +3,7 @@ package dk.mehmedbasic.jsonast.selector
 import dk.mehmedbasic.jsonast.BaseNode
 
 /**
- * TODO - someone remind me to document this class 
+ * A node filter
  *
  * @author Jesenko Mehmedbasic
  * created 10/15/2015.

@@ -13,6 +13,11 @@
           "name": "Aemon Targaryen",
           "title": "Maester",
           "age": 104
+        },
+        {
+          "name": "Plague-infested Rat",
+          "title": "Ratty McRatson",
+          "age": 2
         }
       ]
     }
