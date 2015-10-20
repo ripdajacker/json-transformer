@@ -22,10 +22,10 @@ final class Mover implements TransformStrategy {
 
     @Override
     void apply(JsonNodes root) {
-        for (BaseNode moving : root.roots) {
+        for (BaseNode source : root.roots) {
             def parents = new JsonNodes()
-            parents.addExclusion(moving)
-            for (BaseNode parent : moving.parents()) {
+            parents.addExclusion(source)
+            for (BaseNode parent : source.parents()) {
                 parents.addRoot(parent)
             }
 
@@ -33,16 +33,25 @@ final class Mover implements TransformStrategy {
 
             def parsedSelector = parser.parse()
             def newDestinations = parser.execute(parsedSelector, parents)
+            BaseNode destination = null
 
             if (newDestinations.length > 1) {
-                log.warning("Found more than one potential destination for ($moving, $selector)")
+                def closest = newDestinations.closestTo(source)
+                if (closest.size() == 0) {
+                    log.warning("Found ambiguous destinations for ($source, $selector)")
+                } else if (closest.size() > 1) {
+                    log.warning("Found more than one potential destination for ($source, $selector)")
+                } else {
+                    destination = closest.first().first
+                }
+            } else if (newDestinations.length == 0) {
+                log.warning("Found zero potential destinations for ($source, $selector)")
+            } else {
+                destination = newDestinations.roots.first()
             }
-            if (newDestinations.length == 0) {
-                log.warning("Found zero potential destinations for ($moving, $selector)")
-            }
-            if (newDestinations.length == 1) {
-                def destination = newDestinations.roots[0]
-                moving.changeParent(destination)
+
+            if (destination) {
+                source.changeParent(destination)
             }
         }
 

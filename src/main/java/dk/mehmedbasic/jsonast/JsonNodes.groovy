@@ -15,7 +15,7 @@ import groovy.transform.TypeChecked
 class JsonNodes implements Iterable<BaseNode> {
     private Map<String, BaseNode> idToNode = [:]
     private Multimap<String, BaseNode> nameToNode = LinkedListMultimap.create()
-    private Multimap<String, BaseNode> tagToNode = LinkedListMultimap.create()
+    private Multimap<String, BaseNode> classesToNode = LinkedListMultimap.create()
 
     private List<BaseNode> nodes = new LinkedList<>()
     List<BaseNode> roots = new LinkedList<>()
@@ -104,7 +104,7 @@ class JsonNodes implements Iterable<BaseNode> {
         nameToNode.get(node.identifier.name).add(node)
 
         for (String className : node.identifier.classes) {
-            tagToNode.get(className).add(node)
+            classesToNode.get(className).add(node)
         }
     }
 
@@ -123,6 +123,29 @@ class JsonNodes implements Iterable<BaseNode> {
         return result
     }
 
+    List<Tuple2<BaseNode, Integer>> closestTo(BaseNode node) {
+        List<Tuple2<BaseNode, Integer>> distance = []
+        for (BaseNode that : this.nodes.findAll { it != node }) {
+            distance << new Tuple2<BaseNode, Integer>(that, node.commonAncestor(that))
+        }
+        Collections.sort(distance, new Comparator<Tuple2<BaseNode, Integer>>() {
+            @Override
+            int compare(Tuple2<BaseNode, Integer> o1, Tuple2<BaseNode, Integer> o2) {
+                return o1.second.compareTo(o2.second)
+            }
+        })
+        if (distance.isEmpty()) {
+            return []
+        }
+
+        if (distance.size() == 1) {
+            return [distance.first()]
+        }
+
+        int shortest = distance.first().second
+        return distance.findAll { it.second == shortest }
+    }
+
     int getLength() {
         roots.size()
     }
@@ -135,7 +158,7 @@ class JsonNodes implements Iterable<BaseNode> {
         if (dirty) {
             idToNode.clear()
             nameToNode.clear()
-            tagToNode.clear()
+            classesToNode.clear()
 
 
             List<BaseNode> copy = new ArrayList<>(nodes)

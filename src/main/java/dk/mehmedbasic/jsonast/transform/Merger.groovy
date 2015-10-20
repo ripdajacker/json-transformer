@@ -32,15 +32,24 @@ final class Merger implements TransformStrategy {
             def parsedSelector = parser.parse()
             def newDestinations = parser.execute(parsedSelector, parents)
 
-            if (newDestinations.length > 1) {
-                log.warning("Found more than one potential destination for ($source, $selector)")
-            }
-            if (newDestinations.length == 0) {
-                log.warning("Found zero potential destinations for ($source, $selector)")
-            }
-            if (newDestinations.length == 1) {
-                def destination = newDestinations.roots[0]
+            BaseNode destination = null
 
+            if (newDestinations.length > 1) {
+                def closest = newDestinations.closestTo(source)
+                if (closest.size() == 0) {
+                    log.warning("Found ambiguous destinations for ($source, $selector)")
+                } else if (closest.size() > 1) {
+                    log.warning("Found more than one potential destination for ($source, $selector)")
+                } else {
+                    destination = closest.first().first
+                }
+            } else if (newDestinations.length == 0) {
+                log.warning("Found zero potential destinations for ($source, $selector)")
+            } else {
+                destination = newDestinations.roots.first()
+            }
+
+            if (destination) {
                 if (destination.isObject()) {
                     // Destination is object, add the source
                     destination.addChild(source)

@@ -117,4 +117,15 @@ abstract class BaseNode {
     void cleanDirtyState() {
 
     }
+
+    int commonAncestor(BaseNode baseNode) {
+        def thisParents = parents()
+        def thatParents = baseNode.parents()
+
+        int previousSize = Math.max(thisParents.size(), thatParents.size())
+
+        thisParents.retainAll(thatParents)
+
+        previousSize - thisParents.size()
+    }
 }

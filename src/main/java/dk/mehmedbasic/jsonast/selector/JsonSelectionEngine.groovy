@@ -55,7 +55,9 @@ class JsonSelectionEngine {
             def prefix = { String value, String prefix -> value.startsWith(prefix) }
             return new PropertyConditionSelector(condition.localName, condition.value, prefix)
         } else if (condition instanceof PseudoClassConditionImpl) {
+            def value = condition.getValue()
             // TODO parse pseudo classes
+            println()
         } else if (condition instanceof ClassConditionImpl) {
             return new ClassConditionSelector(condition.value)
         } else if (condition instanceof IdConditionImpl) {
