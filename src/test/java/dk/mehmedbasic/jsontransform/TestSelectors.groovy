@@ -27,18 +27,18 @@ class TestSelectors {
         Assert.assertEquals("Names should have three elements", 3, names.length)
         Assert.assertEquals("First element should be value 'Jon Snow'", "Jon Snow", names.roots[0].stringValue())
         Assert.assertEquals("Second element should be value 'Aemon Targaryen'", "Aemon Targaryen", names.roots[1].stringValue())
-        Assert.assertEquals("Second element should be value 'Plague-infested Rat'", "Plague-infested Rat", names.roots[2].stringValue())
+        Assert.assertEquals("Second element should be value 'Ratty McRatson'", "Ratty McRatson", names.roots[2].stringValue())
     }
 
     @Test
     void selectWithPrefix() {
         Assert.assertEquals("Jon should have zero elements", 0, document.select("residents[name^=Jon]").length)
 
-        def prefixed = document.select("residents .object[name^=Plague]")
+        def prefixed = document.select("residents .object[name^=Ratty]")
         Assert.assertEquals("Should have one element", 1, prefixed.length)
 
         def rat = prefixed.selectSingle(null).get()
         Assert.assertTrue("Selected should be instance of JsonObjectNode", rat instanceof JsonObjectNode)
-        Assert.assertEquals("Selected should have name= 'Plague-infested Rat'", 'Plague-infested Rat', rat.get("name").stringValue())
+        Assert.assertEquals("Selected should have name= 'Ratty McRatson'", 'Ratty McRatson', rat.get("name").stringValue())
     }
 }

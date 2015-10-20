@@ -51,9 +51,10 @@ class TestTransform {
     void moveToSibling() {
         def names = document.select("name")
 
-        Assert.assertEquals("Names should have two elements", 2, names.length)
+        Assert.assertEquals("Names should have three elements", 3, names.length)
         Assert.assertEquals("First element should be value 'Jon Snow'", "Jon Snow", names.roots[0].stringValue())
         Assert.assertEquals("Second element should be value 'Aemon Targaryen'", "Aemon Targaryen", names.roots[1].stringValue())
+        Assert.assertEquals("Second element should be value 'Ratty McRatson'", "Ratty McRatson", names.roots[2].stringValue())
     }
 
     @Test
