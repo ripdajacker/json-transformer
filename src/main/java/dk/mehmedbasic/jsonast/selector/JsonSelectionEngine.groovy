@@ -88,10 +88,12 @@ class JsonSelectionEngine {
 
         @Override
         boolean apply(BaseNode node) {
-            if (!node.identifier.tag) {
-                return false
+            for (String thatName : node.identifier.classes) {
+                if (thatName.equals(className)) {
+                    return true;
+                }
             }
-            return node.identifier.tag.equals(className)
+            return false;
         }
     }
 

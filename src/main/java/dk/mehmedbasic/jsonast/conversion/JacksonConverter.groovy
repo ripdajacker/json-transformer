@@ -19,7 +19,7 @@ class JacksonConverter {
         if (source.isObject()) {
             def result = new JsonObjectNode()
             result.identifier.name = name
-            result.identifier.tag = "object"
+            result.identifier.classes.add("object")
 
             ObjectNode object = source as ObjectNode
             for (Map.Entry<String, JsonNode> entry : object.fields) {
@@ -29,7 +29,7 @@ class JacksonConverter {
         } else if (source.isArray()) {
             def result = new JsonArrayNode()
             result.identifier.name = name
-            result.identifier.tag = "array"
+            result.identifier.classes.add("array")
 
             ArrayNode array = source as ArrayNode
             for (JsonNode node : array) {
@@ -41,16 +41,16 @@ class JacksonConverter {
             result.identifier.name = name
 
             if (source.isBoolean()) {
-                result.identifier.tag = "boolean"
+                result.identifier.classes.add("boolean")
                 result.setValue(source.booleanValue)
             } else if (source.isInt()) {
-                result.identifier.tag = "int"
+                result.identifier.classes.add("int")
                 result.setValue(source.intValue)
             } else if (source.isTextual()) {
-                result.identifier.tag = "string"
+                result.identifier.classes.add("string")
                 result.setValue(source.textValue)
             } else if (source.isDouble()) {
-                result.identifier.tag = "double"
+                result.identifier.classes.add("double")
                 result.setValue(source.doubleValue)
             }
             return result

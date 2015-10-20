@@ -8,5 +8,5 @@ import groovy.transform.TypeChecked
 class JsonIdentifier {
     String name
     String id
-    String tag
+    Set<String> classes = []
 }

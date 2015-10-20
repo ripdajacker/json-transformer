@@ -102,7 +102,10 @@ class JsonNodes implements Iterable<BaseNode> {
     private void register(BaseNode node) {
         idToNode.put(node.identifier.id, node)
         nameToNode.get(node.identifier.name).add(node)
-        tagToNode.get(node.identifier.tag).add(node)
+
+        for (String className : node.identifier.classes) {
+            tagToNode.get(className).add(node)
+        }
     }
 
     @Override
