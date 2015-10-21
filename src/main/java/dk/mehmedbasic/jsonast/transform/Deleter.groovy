@@ -10,7 +10,7 @@ import groovy.transform.TypeChecked
 @TypeChecked
 class Deleter implements TransformStrategy {
     String name
-    int index
+    int index = -1
 
     Deleter(String name) {
         this.name = name
@@ -22,8 +22,17 @@ class Deleter implements TransformStrategy {
 
     @Override
     void apply(JsonNodes root) {
-        for (BaseNode node : root.roots) {
-            node.removeNode(name)
+        if (name) {
+            for (BaseNode node : root.roots) {
+                node.removeNode(name)
+            }
+        } else if (index >= 0) {
+            for (BaseNode node : root.roots) {
+                if (node.isObject() || node.isArray()) {
+                    def child = node.get(index)
+                    node.removeNode(child)
+                }
+            }
         }
     }
 }
