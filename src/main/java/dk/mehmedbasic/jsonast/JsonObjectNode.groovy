@@ -3,7 +3,7 @@ package dk.mehmedbasic.jsonast
 import groovy.transform.TypeChecked
 
 /**
- * A Json object node
+ * A Json object node.
  */
 @TypeChecked
 class JsonObjectNode extends BaseNode {

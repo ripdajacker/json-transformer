@@ -8,8 +8,9 @@ import groovy.transform.TypeChecked
 
 /**
  * A collection of BaseNode objects in a selectable form.
- *
- * This is S
+ * <br/><br/>
+ * This is a jquery-like object, that contains a list of roots.<br/>
+ * When you select within this object, the query runs for all roots.
  */
 @TypeChecked
 class JsonNodes implements Iterable<BaseNode> {

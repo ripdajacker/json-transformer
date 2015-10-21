@@ -3,7 +3,10 @@ package dk.mehmedbasic.jsonast
 import groovy.transform.TypeChecked
 
 /**
- * The base Json node
+ * The base Json node that is the superclass for all nodes in the system.
+ * <br/><br/>
+ * All nodes are mutable, to accommodate the transformation logic.<br/>
+ * This means that every transformer().apply() will potentially change the tree.<br/>
  */
 @TypeChecked
 abstract class BaseNode {
