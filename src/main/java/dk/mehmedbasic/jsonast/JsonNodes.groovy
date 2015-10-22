@@ -25,6 +25,13 @@ class JsonNodes implements Iterable<BaseNode> {
 
     private boolean dirty = false
 
+    /**
+     * Selects a subtree given a selector.
+     *
+     * @param selector the selector to use.
+     *
+     * @return a subtree containing the selected nodes.
+     */
     JsonNodes select(String selector) {
         checkDirtyState()
         if (selector == null || selector.trim().isEmpty()) {
@@ -34,6 +41,12 @@ class JsonNodes implements Iterable<BaseNode> {
         engine.execute(this)
     }
 
+    /**
+     * Selects the first result given a selector.
+     *
+     * @param selector the selector to query with.
+     * @return an optional BaseNode value.
+     */
     Optional<BaseNode> selectSingle(String selector) {
         checkDirtyState()
         def result = select(selector)
@@ -43,11 +56,24 @@ class JsonNodes implements Iterable<BaseNode> {
         return Optional.of(result.roots[0])
     }
 
+    /**
+     * Finds a node by id.
+     *
+     * @param id the id of the node.
+     * @return an optional BaseNode value.
+     */
     Optional<BaseNode> findById(String id) {
         checkDirtyState()
         return Optional.ofNullable(idToNode.get(id))
     }
 
+    /**
+     * Finds nodes by name.
+     *
+     * @param name the name to look for.
+     *
+     * @return the resulting subtree.
+     */
     JsonNodes findByName(String name) {
         checkDirtyState()
         def result = new JsonNodes()
@@ -64,17 +90,27 @@ class JsonNodes implements Iterable<BaseNode> {
         return result
     }
 
-    void addRoot(BaseNode node) {
-        if (exclusions.contains(node)) {
+    /**
+     * Adds a root to the subtree.
+     *
+     * @param root the root to add.
+     */
+    void addRoot(BaseNode root) {
+        if (exclusions.contains(root)) {
             return
         }
-        if (roots.contains(node)) {
+        if (roots.contains(root)) {
             return
         }
-        roots.add(node)
-        recursivelyAdd(node)
+        roots.add(root)
+        recursivelyAdd(root)
     }
 
+    /**
+     * Recursively add the given node and its entire subtree.
+     *
+     * @param node the node to traverse.
+     */
     private void recursivelyAdd(BaseNode node) {
         if (exclusions.contains(node)) {
             return
@@ -94,12 +130,21 @@ class JsonNodes implements Iterable<BaseNode> {
 
     }
 
-    boolean addNode(BaseNode baseNode) {
-        register(baseNode)
-        this.nodes.add(baseNode)
+    /**
+     * Adds a node to this tree.
+     *
+     * @param node the node to add.
+     */
+    void addNode(BaseNode node) {
+        register(node)
+        this.nodes.add(node)
     }
 
-
+    /**
+     * Registers a node in this subtree.
+     *
+     * @param node the node to register.
+     */
     private void register(BaseNode node) {
         idToNode.put(node.identifier.id, node)
         nameToNode.get(node.identifier.name).add(node)
@@ -114,6 +159,13 @@ class JsonNodes implements Iterable<BaseNode> {
         return roots.iterator()
     }
 
+    /**
+     * Filters the subtree given a {@link NodeFilter}
+     *
+     * @param filter the filter to apply.
+     *
+     * @return the filtered subtree.
+     */
     JsonNodes filter(NodeFilter filter) {
         def result = new JsonNodes()
         for (BaseNode node : nodes) {
@@ -124,6 +176,14 @@ class JsonNodes implements Iterable<BaseNode> {
         return result
     }
 
+    /**
+     * Calculates a list of <BaseNode, Integer> pairs, that are sorted by the common ancestor count to this subtree's
+     * nodes.
+     *
+     * @param node the node to calculate the distance to.
+     *
+     * @return the list of distances.
+     */
     List<Tuple2<BaseNode, Integer>> closestTo(BaseNode node) {
         List<Tuple2<BaseNode, Integer>> distance = []
         for (BaseNode that : this.nodes.findAll { it != node }) {
@@ -147,14 +207,29 @@ class JsonNodes implements Iterable<BaseNode> {
         return distance.findAll { it.second == shortest }
     }
 
+    /**
+     * The number of roots in this subtree.
+     *
+     * @return the number of roots.
+     */
     int getLength() {
         roots.size()
     }
 
+    /**
+     * Adds an exclusion to the subtree.
+     * <br/><br/>
+     * The excluded nodes are ignored when added to the subtree.
+     *
+     * @param node the node to exclude.
+     */
     void addExclusion(BaseNode node) {
         exclusions << node
     }
 
+    /**
+     * Checks the dirty state of the subtree.
+     */
     private void checkDirtyState() {
         if (dirty) {
             idToNode.clear()
@@ -174,7 +249,9 @@ class JsonNodes implements Iterable<BaseNode> {
         }
     }
 
-
+    /**
+     * Called when the tree is changed.
+     */
     void treeChanged() {
         this.dirty = true
     }

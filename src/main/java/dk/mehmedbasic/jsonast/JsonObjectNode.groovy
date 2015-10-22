@@ -36,10 +36,6 @@ class JsonObjectNode extends BaseNode {
         updateMap()
     }
 
-    @Override
-    boolean isContainerNode() {
-        true
-    }
 
     @Override
     boolean isObject() {

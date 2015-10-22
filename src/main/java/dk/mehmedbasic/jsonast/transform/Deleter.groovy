@@ -8,7 +8,7 @@ import groovy.transform.TypeChecked
  * Deletes child nodes
  */
 @TypeChecked
-class Deleter implements TransformStrategy {
+final class Deleter implements TransformStrategy {
     String name
     int index = -1
 
@@ -29,8 +29,7 @@ class Deleter implements TransformStrategy {
         } else if (index >= 0) {
             for (BaseNode node : root.roots) {
                 if (node.isObject() || node.isArray()) {
-                    def child = node.get(index)
-                    node.removeNode(child)
+                    node.removeNode(index)
                 }
             }
         }

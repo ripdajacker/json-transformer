@@ -69,4 +69,9 @@ class JsonValueNode extends BaseNode {
     boolean isValueNode() {
         true
     }
+
+    @Override
+    void addChild(BaseNode node) {
+        throw new UnsupportedOperationException("You cannot add a child to a value node.")
+    }
 }

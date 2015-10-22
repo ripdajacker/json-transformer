@@ -9,13 +9,28 @@ import org.codehaus.jackson.node.ObjectNode
  * Converts jackson nodes to dk.mehmedbasic.jsonast nodes.
  */
 class JacksonConverter {
-    static JsonDocument convert(ObjectNode root) {
+    /**
+     * Converts a Jackson node to a JsonDocument.
+     *
+     * @param root the root to convert.
+     *
+     * @return the converted document.
+     */
+    static JsonDocument convert(JsonNode root) {
         def document = new JsonDocument()
         document.addRoot(convertNode(null, root))
         return document
     }
 
-    static BaseNode convertNode(String name, JsonNode source) {
+    /**
+     * Converts the given node.
+     *
+     * @param name the name of the node.
+     * @param source the source Jackson node.
+     *
+     * @return the converted node.
+     */
+    private static BaseNode convertNode(String name, JsonNode source) {
         if (source.isObject()) {
             def result = new JsonObjectNode()
             result.identifier.name = name

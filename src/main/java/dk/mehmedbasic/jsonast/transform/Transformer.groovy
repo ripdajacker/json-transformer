@@ -9,7 +9,7 @@ import groovy.transform.TypeChecked
  * This small class builds and executes transformation functions.
  */
 @TypeChecked
-class Transformer {
+final class Transformer {
 
     List<TransformStrategy> functions = []
     String selector

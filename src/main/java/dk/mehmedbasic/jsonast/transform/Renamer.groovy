@@ -27,7 +27,7 @@ final class Renamer implements TransformStrategy {
     void apply(JsonNodes root) {
         for (BaseNode node : root.roots) {
             if (from) {
-                node.renameChild(from, to)
+                node.renameNode(from, to)
             } else {
                 node.parent?.renameNode(node, to)
             }

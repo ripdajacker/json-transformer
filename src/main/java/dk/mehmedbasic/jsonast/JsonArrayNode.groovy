@@ -14,10 +14,6 @@ class JsonArrayNode extends BaseNode {
         true
     }
 
-    @Override
-    boolean isContainerNode() {
-        true
-    }
 
     @Override
     BaseNode get(int index) {
