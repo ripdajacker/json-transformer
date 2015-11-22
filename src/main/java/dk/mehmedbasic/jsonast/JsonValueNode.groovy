@@ -9,6 +9,13 @@ import groovy.transform.TypeChecked
 class JsonValueNode extends BaseNode {
     private Object value
 
+    JsonValueNode() {
+    }
+
+    JsonValueNode(Object value) {
+        this.value = value
+    }
+
     void setValue(String value) {
         this.value = value
     }

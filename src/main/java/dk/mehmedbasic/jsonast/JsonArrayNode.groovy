@@ -36,4 +36,8 @@ class JsonArrayNode extends BaseNode {
             super.removeNode(node)
         }
     }
+
+    int getLength() {
+        return children.size()
+    }
 }

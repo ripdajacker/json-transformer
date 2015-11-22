@@ -1,8 +1,6 @@
 package dk.mehmedbasic.jsontransform
 
-import dk.mehmedbasic.jsonast.BaseNode
-import dk.mehmedbasic.jsonast.JsonDocument
-import dk.mehmedbasic.jsonast.JsonValueNode
+import dk.mehmedbasic.jsonast.*
 import dk.mehmedbasic.jsonast.conversion.JacksonConverter
 import dk.mehmedbasic.jsonast.transform.ManipulateValueFunction
 import dk.mehmedbasic.jsonast.transform.MergeValueFunction
@@ -151,6 +149,73 @@ class TestTransform {
         def residentsArray = residents.roots.get(0)
         def child = residentsArray.get(0)
         Assert.assertEquals("The child should be Ratty McRatson", "Ratty McRatson", child.get("name").value)
+    }
+
+    @Test
+    void addSimpleValue() {
+        def jonSnow = document.selectSingle("son").get()
+
+        def addedSelector = "addedValue"
+        Assert.assertNull("The object should not have a value named 'addedValue'", jonSnow.get(addedSelector))
+
+        new Transformer("son").add(addedSelector, 42d).apply(document)
+
+        Assert.assertNotNull("The object should now have a value named 'addedValue'", jonSnow.get(addedSelector))
+        def value = jonSnow.get(addedSelector).value as double
+
+        Assert.assertEquals("The value of the added node should be 42", 42d, value, 0.0001d)
+    }
+
+    @Test
+    void addArray() {
+        def jonSnow = document.selectSingle("son").get()
+
+        def addedSelector = "addedValue"
+        Assert.assertNull("The object should not have a value named 'addedValue'", jonSnow.get(addedSelector))
+
+        new Transformer("son")
+                .add(addedSelector, JsonType.Array)
+                .apply(document)
+
+        new Transformer(addedSelector)
+                .add(42d)
+                .apply(document)
+
+        Assert.assertNotNull("The object should now have a value named 'addedValue'", jonSnow.get(addedSelector))
+        Assert.assertTrue("The new node should be an array", jonSnow.get(addedSelector).array)
+
+        def arrayNode = jonSnow.get(addedSelector) as JsonArrayNode
+        Assert.assertEquals("The array should have one node", 1, arrayNode.length)
+
+        def value = arrayNode.get(0).value as double
+        Assert.assertEquals("The value of the added node should be 42", 42d, value, 0.0001d)
+    }
+
+    @Test
+    void addObject() {
+        def jonSnow = document.selectSingle("son").get()
+
+        def addedSelector = "addedValue"
+        Assert.assertNull("The object should not have a value named 'addedValue'", jonSnow.get(addedSelector))
+
+        new Transformer("son")
+                .add(addedSelector, JsonType.Object)
+                .apply(document)
+
+        new Transformer(addedSelector)
+                .add("fortyTwo", 42d)
+                .apply(document)
+
+
+        def newObject = jonSnow.get(addedSelector)
+        Assert.assertNotNull("The object should now have a value named 'addedValue'", newObject)
+        Assert.assertTrue("The new node should be an array", newObject.object)
+
+        def objectNode = jonSnow.get(addedSelector) as JsonObjectNode
+        Assert.assertEquals("The array should have one node", 1, objectNode.length)
+
+        def value = objectNode.get("fortyTwo").value as double
+        Assert.assertEquals("The value of the added node should be 42", 42d, value, 0.0001d)
     }
 
 }
