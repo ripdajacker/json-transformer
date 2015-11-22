@@ -1,5 +1,6 @@
 package dk.mehmedbasic.jsontransform
 
+import dk.mehmedbasic.jsonast.BaseNode
 import dk.mehmedbasic.jsonast.JsonDocument
 import dk.mehmedbasic.jsonast.JsonValueNode
 import dk.mehmedbasic.jsonast.conversion.JacksonConverter
@@ -118,7 +119,7 @@ class TestTransform {
     }
 
     @Test
-    void deleteChild() {
+    void deleteChildByName() {
         def selector = "title"
         def before = document.selectSingle(selector).get()
         Assert.assertEquals("$selector should be 'Maester'", "Maester", before.value)
@@ -128,9 +129,28 @@ class TestTransform {
                 .apply(document)
 
 
-        def ages = document.select(selector)
-        Assert.assertEquals("Selection should have zero children", 0, ages.length)
+        def titles = document.select(selector)
+        Assert.assertEquals("Selection should have zero children", 0, titles.length)
         Assert.assertEquals("Before node should have null parent", null, before.parent)
+    }
+
+    @Test
+    void deleteChildByIndex() {
+        def selector = "residents"
+        def before = document.selectSingle(selector).get()
+        Assert.assertEquals("$selector should have two children", 2, before.length)
+
+        new Transformer("castle-black residents")
+                .deleteChild(0)
+                .apply(document)
+
+
+        def residents = document.select(selector)
+        Assert.assertEquals("Selection should have 1 child", 1, residents.length)
+
+        def residentsArray = residents.roots.get(0)
+        def child = residentsArray.get(0)
+        Assert.assertEquals("The child should be Ratty McRatson", "Ratty McRatson", child.get("name").value)
     }
 
 }
