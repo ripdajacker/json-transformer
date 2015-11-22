@@ -1,6 +1,7 @@
 package dk.mehmedbasic.jsonast.transform
 
 import dk.mehmedbasic.jsonast.BaseNode
+import dk.mehmedbasic.jsonast.JsonDocument
 import dk.mehmedbasic.jsonast.JsonNodes
 import dk.mehmedbasic.jsonast.selector.JsonSelectionEngine
 import groovy.transform.PackageScope
@@ -21,7 +22,7 @@ final class Mover implements TransformStrategy {
     }
 
     @Override
-    void apply(JsonNodes root) {
+    void apply(JsonDocument document, JsonNodes root) {
         for (BaseNode source : root.roots) {
             def parents = new JsonNodes()
             parents.addExclusion(source)

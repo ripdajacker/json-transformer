@@ -1,6 +1,7 @@
 package dk.mehmedbasic.jsonast.transform
 
 import dk.mehmedbasic.jsonast.BaseNode
+import dk.mehmedbasic.jsonast.JsonDocument
 import dk.mehmedbasic.jsonast.JsonNodes
 import groovy.transform.PackageScope
 import groovy.transform.TypeChecked
@@ -24,7 +25,7 @@ final class Renamer implements TransformStrategy {
     }
 
     @Override
-    void apply(JsonNodes root) {
+    void apply(JsonDocument document, JsonNodes root) {
         for (BaseNode node : root.roots) {
             if (from) {
                 node.renameNode(from, to)

@@ -1,5 +1,6 @@
 package dk.mehmedbasic.jsonast.transform
 
+import dk.mehmedbasic.jsonast.JsonDocument
 import dk.mehmedbasic.jsonast.JsonNodes
 import groovy.transform.TypeChecked
 
@@ -8,5 +9,5 @@ import groovy.transform.TypeChecked
  */
 @TypeChecked
 interface TransformStrategy {
-    void apply(JsonNodes root)
+    void apply(JsonDocument document, JsonNodes root)
 }

@@ -1,6 +1,7 @@
 package dk.mehmedbasic.jsonast.transform
 
 import dk.mehmedbasic.jsonast.BaseNode
+import dk.mehmedbasic.jsonast.JsonDocument
 import dk.mehmedbasic.jsonast.JsonNodes
 import groovy.transform.TypeChecked
 
@@ -21,7 +22,7 @@ final class Deleter implements TransformStrategy {
     }
 
     @Override
-    void apply(JsonNodes root) {
+    void apply(JsonDocument document, JsonNodes root) {
         if (name) {
             for (BaseNode node : root.roots) {
                 node.removeNode(name)

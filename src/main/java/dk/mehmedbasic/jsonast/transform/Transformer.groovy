@@ -1,6 +1,8 @@
 package dk.mehmedbasic.jsonast.transform
 
+import dk.mehmedbasic.jsonast.JsonDocument
 import dk.mehmedbasic.jsonast.JsonNodes
+import dk.mehmedbasic.jsonast.JsonType
 import groovy.transform.TypeChecked
 
 /**
@@ -57,10 +59,25 @@ final class Transformer {
         this
     }
 
-    void apply(JsonNodes roots) {
+    Transformer add(String name, JsonType type) {
+        functions << new AddValue(name, type, null)
+        this
+    }
+
+    Transformer add(Object value) {
+        functions << new AddValue(null, JsonType.Value, value)
+        this
+    }
+
+    Transformer add(String name, Object value) {
+        functions << new AddValue(name, JsonType.Value, value)
+        this
+    }
+
+    void apply(JsonDocument document) {
         for (TransformStrategy function : functions) {
-            function.apply(roots.select(selector))
+            function.apply(document, document.select(selector))
         }
-        roots.treeChanged()
+        document.treeChanged()
     }
 }

@@ -1,6 +1,7 @@
 package dk.mehmedbasic.jsonast.transform
 
 import dk.mehmedbasic.jsonast.BaseNode
+import dk.mehmedbasic.jsonast.JsonDocument
 import dk.mehmedbasic.jsonast.JsonNodes
 import dk.mehmedbasic.jsonast.JsonValueNode
 import groovy.transform.PackageScope
@@ -19,7 +20,7 @@ final class Manipulator implements TransformStrategy {
     }
 
     @Override
-    void apply(JsonNodes root) {
+    void apply(JsonDocument document, JsonNodes root) {
         if (function) {
             for (BaseNode node : root) {
                 if (node.isValueNode()) {
