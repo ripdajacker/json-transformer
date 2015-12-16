@@ -4,6 +4,7 @@ import com.google.common.collect.LinkedListMultimap
 import com.google.common.collect.Multimap
 import dk.mehmedbasic.jsonast.selector.JsonSelectionEngine
 import dk.mehmedbasic.jsonast.selector.NodeFilter
+import dk.mehmedbasic.jsonast.transform.Transformer
 import groovy.transform.TypeChecked
 
 /**
@@ -25,7 +26,12 @@ class JsonNodes implements Iterable<BaseNode> {
 
     private boolean dirty = false
 
-    /**
+    JsonDocument document
+
+    JsonNodes(JsonDocument document) {
+        this.document = document
+    }
+/**
      * Selects a subtree given a selector.
      *
      * @param selector the selector to use.
@@ -76,7 +82,7 @@ class JsonNodes implements Iterable<BaseNode> {
      */
     JsonNodes findByName(String name) {
         checkDirtyState()
-        def result = new JsonNodes()
+        def result = new JsonNodes(document)
         if (name == null) {
             for (BaseNode root : roots) {
                 result.addRoot(root)
@@ -167,7 +173,7 @@ class JsonNodes implements Iterable<BaseNode> {
      * @return the filtered subtree.
      */
     JsonNodes filter(NodeFilter filter) {
-        def result = new JsonNodes()
+        def result = new JsonNodes(document)
         for (BaseNode node : nodes) {
             if (filter.apply(node)) {
                 result.addRoot(node)
@@ -175,6 +181,15 @@ class JsonNodes implements Iterable<BaseNode> {
         }
         return result
     }
+
+    /**
+     * Begins a transformation builder.
+     *
+     * @param selector the selector.
+     *
+     * @return the new transformer object.
+     */
+    Transformer transform(String selector) { return new Transformer(selector, this) }
 
     /**
      * Calculates a list of <BaseNode, Integer> pairs, that are sorted by the common ancestor count to this subtree's

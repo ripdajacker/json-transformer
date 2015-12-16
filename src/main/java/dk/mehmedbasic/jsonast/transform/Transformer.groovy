@@ -15,9 +15,11 @@ final class Transformer {
 
     List<TransformStrategy> functions = []
     String selector
+    JsonNodes destination
 
-    Transformer(String selector) {
+    Transformer(String selector, JsonNodes destination) {
         this.selector = selector
+        this.destination = destination
     }
 
     Transformer renameTo(String newName) {
@@ -58,7 +60,6 @@ final class Transformer {
         functions << new Manipulator(function)
         this
     }
-
     Transformer add(String name, JsonType type) {
         functions << new AddValue(name, type, null)
         this
@@ -74,10 +75,13 @@ final class Transformer {
         this
     }
 
-    void apply(JsonDocument document) {
-        for (TransformStrategy function : functions) {
-            function.apply(document, document.select(selector))
+    void apply() {
+        if (destination) {
+            for (TransformStrategy function : functions) {
+                function.apply(destination.document, destination.select(selector))
+            }
+            destination.treeChanged()
         }
-        document.treeChanged()
+
     }
 }

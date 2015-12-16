@@ -4,7 +4,6 @@ import dk.mehmedbasic.jsonast.*
 import dk.mehmedbasic.jsonast.conversion.JacksonConverter
 import dk.mehmedbasic.jsonast.transform.ManipulateValueFunction
 import dk.mehmedbasic.jsonast.transform.MergeValueFunction
-import dk.mehmedbasic.jsonast.transform.Transformer
 import org.codehaus.jackson.map.ObjectMapper
 import org.codehaus.jackson.node.ObjectNode
 import org.junit.Assert
@@ -26,8 +25,7 @@ class TestTransform {
 
     @Test
     void rename() {
-
-        new Transformer("residents").renameTo("ned").apply(document)
+        document.transform("residents").renameTo("ned").apply()
 
         def nodes = document.select("ned")
 
@@ -36,7 +34,7 @@ class TestTransform {
 
     @Test
     void moveUpward() {
-        new Transformer("residents").moveTo("ned").apply(document)
+        document.transform("residents").moveTo("ned").apply()
 
         def residents = document.selectSingle("residents").get()
         Assert.assertEquals("Name of residents parent should be 'ned'", "ned", residents.parent.identifier.name)
@@ -68,7 +66,7 @@ class TestTransform {
             }
         }
 
-        new Transformer("status").manipulateValue(function).apply(document)
+        document.transform("status").manipulateValue(function).apply()
 
         def after = document.selectSingle("status").get()
         Assert.assertEquals("Status should be 'alive until end of Season 5'", "alive until end of Season 5", after.value)
@@ -87,7 +85,7 @@ class TestTransform {
             }
         }
 
-        new Transformer(selector).manipulateValue(ageOneYear).apply(document)
+        document.transform(selector).manipulateValue(ageOneYear).apply()
 
         def ages = document.select(selector)
         Assert.assertEquals("Age should be '17'", 17, ages.roots[0].value)
@@ -107,9 +105,10 @@ class TestTransform {
                 destination.value = destination.value + ", " + source.value
             }
         }
-        new Transformer(selector)
+
+        document.transform(selector)
                 .merge("castle-black name", function)
-                .apply(document)
+                .apply()
 
         def ages = document.select("name")
         Assert.assertEquals("name should be 'Jon Snow'", "Jon Snow", ages.roots[0].value)
@@ -122,9 +121,9 @@ class TestTransform {
         def before = document.selectSingle(selector).get()
         Assert.assertEquals("$selector should be 'Maester'", "Maester", before.value)
 
-        new Transformer("castle-black .object")
+        document.transform("castle-black .object")
                 .deleteChild("title")
-                .apply(document)
+                .apply()
 
 
         def titles = document.select(selector)
@@ -138,9 +137,9 @@ class TestTransform {
         def before = document.selectSingle(selector).get()
         Assert.assertEquals("$selector should have two children", 2, before.length)
 
-        new Transformer("castle-black residents")
+        document.transform("castle-black residents")
                 .deleteChild(0)
-                .apply(document)
+                .apply()
 
 
         def residents = document.select(selector)
@@ -158,7 +157,7 @@ class TestTransform {
         def addedSelector = "addedValue"
         Assert.assertNull("The object should not have a value named 'addedValue'", jonSnow.get(addedSelector))
 
-        new Transformer("son").add(addedSelector, 42d).apply(document)
+        document.transform("son").add(addedSelector, 42d).apply()
 
         Assert.assertNotNull("The object should now have a value named 'addedValue'", jonSnow.get(addedSelector))
         def value = jonSnow.get(addedSelector).value as double
@@ -173,13 +172,13 @@ class TestTransform {
         def addedSelector = "addedValue"
         Assert.assertNull("The object should not have a value named 'addedValue'", jonSnow.get(addedSelector))
 
-        new Transformer("son")
+        document.transform("son")
                 .add(addedSelector, JsonType.Array)
-                .apply(document)
+                .apply()
 
-        new Transformer(addedSelector)
+        document.transform(addedSelector)
                 .add(42d)
-                .apply(document)
+                .apply()
 
         Assert.assertNotNull("The object should now have a value named 'addedValue'", jonSnow.get(addedSelector))
         Assert.assertTrue("The new node should be an array", jonSnow.get(addedSelector).array)
@@ -198,14 +197,13 @@ class TestTransform {
         def addedSelector = "addedValue"
         Assert.assertNull("The object should not have a value named 'addedValue'", jonSnow.get(addedSelector))
 
-        new Transformer("son")
+        document.transform("son")
                 .add(addedSelector, JsonType.Object)
-                .apply(document)
+                .apply()
 
-        new Transformer(addedSelector)
+        document.transform(addedSelector)
                 .add("fortyTwo", 42d)
-                .apply(document)
-
+                .apply()
 
         def newObject = jonSnow.get(addedSelector)
         Assert.assertNotNull("The object should now have a value named 'addedValue'", newObject)

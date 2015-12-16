@@ -19,7 +19,6 @@ class JsonObjectNode extends BaseNode {
         }
     }
 
-
     @Override
     BaseNode get(String name) {
         def node = nameToChildMap.get(name)
@@ -50,7 +49,6 @@ class JsonObjectNode extends BaseNode {
     int getLength() {
         children.size()
     }
-
 
     @Override
     void removeNode(BaseNode node) {
