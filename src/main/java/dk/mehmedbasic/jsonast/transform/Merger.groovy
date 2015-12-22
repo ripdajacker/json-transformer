@@ -21,7 +21,7 @@ final class Merger implements TransformStrategy {
 
     public void apply(JsonDocument document, JsonNodes root) {
         for (BaseNode source : root.roots) {
-            def parents = new JsonNodes()
+            def parents = new JsonNodes(document)
             parents.addExclusion(source)
             for (BaseNode parent : source.parents()) {
                 parents.addRoot(parent)

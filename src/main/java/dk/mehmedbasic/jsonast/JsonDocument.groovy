@@ -5,6 +5,11 @@ package dk.mehmedbasic.jsonast
  */
 public class JsonDocument extends JsonNodes {
 
+    JsonDocument() {
+        super(null)
+        document = this
+    }
+
     JsonValueNode createValueNode() {
         def node = new JsonValueNode()
         addNode(node)

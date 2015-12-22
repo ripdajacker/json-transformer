@@ -216,4 +216,35 @@ class TestTransform {
         Assert.assertEquals("The value of the added node should be 42", 42d, value, 0.0001d)
     }
 
+    @Test
+    void partitionNode() {
+        def ned = document.selectSingle("ned").get()
+
+        Assert.assertEquals("Ned should have 1 child", 1, ned.length)
+
+        document.transform("son")
+                .partition([["name_and_status", "name", "status"], ["age2", "age"]])
+                .apply()
+
+        ned = document.selectSingle("ned").get()
+        Assert.assertEquals("Ned should now have 3 children", 3, ned.length)
+
+
+        def nameAndStatus = ned.get("name_and_status")
+        Assert.assertNotNull(nameAndStatus)
+        Assert.assertNotNull(ned.get("age2"))
+        Assert.assertNotNull(ned.get("son"))
+
+
+        Assert.assertNotNull(nameAndStatus.get("name"))
+        Assert.assertNotNull(nameAndStatus.get("status"))
+
+
+        def nameNode = nameAndStatus.get("name")
+        Assert.assertTrue("Node should be a JsonValueNode", nameNode instanceof JsonValueNode)
+        Assert.assertEquals("Name should be Jon", "Jon Snow", nameNode.stringValue())
+        Assert.assertEquals("Status should be alive", "alive", nameAndStatus.get("status").stringValue())
+
+    }
+
 }

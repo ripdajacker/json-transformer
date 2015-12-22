@@ -75,6 +75,11 @@ final class Transformer {
         this
     }
 
+    Transformer partition(List<List<String>> partitions) {
+        functions << new Partitioner(partitions)
+        this
+    }
+
     void apply() {
         if (destination) {
             for (TransformStrategy function : functions) {
