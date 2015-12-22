@@ -4,6 +4,7 @@ import dk.mehmedbasic.jsonast.*
 import dk.mehmedbasic.jsonast.conversion.JacksonConverter
 import dk.mehmedbasic.jsonast.transform.ManipulateValueFunction
 import dk.mehmedbasic.jsonast.transform.MergeValueFunction
+import org.codehaus.jackson.JsonNode
 import org.codehaus.jackson.map.ObjectMapper
 import org.codehaus.jackson.node.ObjectNode
 import org.junit.Assert
@@ -20,7 +21,7 @@ class TestTransform {
     void setup() {
         def mapper = new ObjectMapper()
         def tree = mapper.readTree(new FileInputStream(new File("src/main/resources/move-rename.json")))
-        document = JacksonConverter.convert(tree as ObjectNode)
+        document = JacksonConverter.asTransformable(tree as ObjectNode)
     }
 
     @Test
@@ -245,6 +246,9 @@ class TestTransform {
         Assert.assertEquals("Name should be Jon", "Jon Snow", nameNode.stringValue())
         Assert.assertEquals("Status should be alive", "alive", nameAndStatus.get("status").stringValue())
 
+        def node = JacksonConverter.asJacksonNode(document)
+        def string = new ObjectMapper().writer().writeValueAsString(node)
+        println(string)
     }
 
 }

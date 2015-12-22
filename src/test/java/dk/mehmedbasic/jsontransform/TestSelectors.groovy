@@ -18,7 +18,7 @@ class TestSelectors {
     void prepare() {
         def mapper = new ObjectMapper()
         def tree = mapper.readTree(new FileInputStream(new File("src/main/resources/move-rename.json")))
-        document = JacksonConverter.convert(tree)
+        document = JacksonConverter.asTransformable(tree)
     }
 
     @Test
