@@ -1,0 +1,16 @@
+{
+  "person": {
+    "name": "Bill Nye",
+    "occupation": "Science Guy",
+    "pets": [
+      {
+        "type": "cat",
+        "age": 7
+      },
+      {
+        "type": "dog",
+        "age": 5
+      }
+    ]
+  }
+}
