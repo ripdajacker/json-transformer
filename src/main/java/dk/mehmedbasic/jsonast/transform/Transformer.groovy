@@ -1,6 +1,5 @@
 package dk.mehmedbasic.jsonast.transform
 
-import dk.mehmedbasic.jsonast.JsonDocument
 import dk.mehmedbasic.jsonast.JsonNodes
 import dk.mehmedbasic.jsonast.JsonType
 import groovy.transform.TypeChecked
@@ -12,6 +11,7 @@ import groovy.transform.TypeChecked
  */
 @TypeChecked
 final class Transformer {
+
 
     List<TransformStrategy> functions = []
     String selector
@@ -60,6 +60,7 @@ final class Transformer {
         functions << new Manipulator(function)
         this
     }
+
     Transformer add(String name, JsonType type) {
         functions << new AddValue(name, type, null)
         this

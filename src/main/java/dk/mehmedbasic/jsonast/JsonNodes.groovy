@@ -32,12 +32,12 @@ class JsonNodes implements Iterable<BaseNode> {
         this.document = document
     }
 /**
-     * Selects a subtree given a selector.
-     *
-     * @param selector the selector to use.
-     *
-     * @return a subtree containing the selected nodes.
-     */
+ * Selects a subtree given a selector.
+ *
+ * @param selector the selector to use.
+ *
+ * @return a subtree containing the selected nodes.
+ */
     JsonNodes select(String selector) {
         checkDirtyState()
         if (selector == null || selector.trim().isEmpty()) {
