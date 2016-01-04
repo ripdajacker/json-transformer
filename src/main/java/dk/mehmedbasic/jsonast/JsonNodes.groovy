@@ -31,13 +31,14 @@ class JsonNodes implements Iterable<BaseNode> {
     JsonNodes(JsonDocument document) {
         this.document = document
     }
-/**
- * Selects a subtree given a selector.
- *
- * @param selector the selector to use.
- *
- * @return a subtree containing the selected nodes.
- */
+
+    /**
+     * Selects a subtree given a selector.
+     *
+     * @param selector the selector to use.
+     *
+     * @return a subtree containing the selected nodes.
+     */
     JsonNodes select(String selector) {
         checkDirtyState()
         if (selector == null || selector.trim().isEmpty()) {
@@ -160,6 +161,50 @@ class JsonNodes implements Iterable<BaseNode> {
         }
     }
 
+    /**
+     * Gets the parents for this set of roots.
+     *
+     * @return the parents of this.
+     */
+    JsonNodes parent() {
+        def result = new JsonNodes(document)
+        for (BaseNode root : roots) {
+            if (root.parent) {
+                result.addRoot(root.parent)
+            }
+        }
+        return result
+    }
+
+    /**
+     * Find the first parent of the roots matching the given selector.
+     *
+     * @param selector the selector.
+     *
+     * @return the parents.
+     */
+    JsonNodes parent(String selector) {
+        def potentials = document.select(selector)
+
+        def result = new JsonNodes(document)
+        for (BaseNode root : roots) {
+            def relevantParent = findRelevantParent(root, potentials.roots)
+            if (relevantParent) {
+                result.addRoot(relevantParent)
+            }
+        }
+        return result
+    }
+
+    private static BaseNode findRelevantParent(BaseNode root, List<BaseNode> potentials) {
+        for (BaseNode parent : root.parents()) {
+            if (potentials.contains(parent)) {
+                return parent
+            }
+        }
+        return null
+    }
+
     @Override
     Iterator<BaseNode> iterator() {
         return roots.iterator()
@@ -190,6 +235,13 @@ class JsonNodes implements Iterable<BaseNode> {
      * @return the new transformer object.
      */
     Transformer transform(String selector) { return new Transformer(selector, this) }
+
+    /**
+     * Begins a transformation builder on this JsonNodes instance.
+     *
+     * @return the transformer object.
+     */
+    Transformer transform() { return new Transformer(null, this) }
 
     /**
      * Calculates a list of <BaseNode, Integer> pairs, that are sorted by the common ancestor count to this subtree's
