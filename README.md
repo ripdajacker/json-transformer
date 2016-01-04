@@ -89,7 +89,7 @@ The resulting JSON:
     "destination": {
         "value": 42
     },
-    "original_source":´{
+    "original_source": {
             "source": "Jon Snow dies in Season 5"
     },
     "random_stuff": {
