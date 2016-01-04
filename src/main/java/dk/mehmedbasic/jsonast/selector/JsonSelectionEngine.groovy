@@ -57,7 +57,7 @@ class JsonSelectionEngine {
         } else if (condition instanceof PseudoClassConditionImpl) {
             def value = condition.getValue()
             // TODO parse pseudo classes
-            println()
+            throw new UnsupportedOperationException("Pseudo classes are not yet supported")
         } else if (condition instanceof ClassConditionImpl) {
             return new ClassConditionSelector(condition.value)
         } else if (condition instanceof IdConditionImpl) {
