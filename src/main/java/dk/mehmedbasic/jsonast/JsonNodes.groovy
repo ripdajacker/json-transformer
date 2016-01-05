@@ -118,7 +118,7 @@ class JsonNodes implements Iterable<BaseNode> {
      *
      * @param node the node to traverse.
      */
-    private void recursivelyAdd(BaseNode node) {
+    void recursivelyAdd(BaseNode node) {
         if (exclusions.contains(node)) {
             return
         }
