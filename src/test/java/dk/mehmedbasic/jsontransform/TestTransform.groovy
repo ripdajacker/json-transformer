@@ -4,7 +4,6 @@ import dk.mehmedbasic.jsonast.*
 import dk.mehmedbasic.jsonast.conversion.JacksonConverter
 import dk.mehmedbasic.jsonast.transform.ManipulateValueFunction
 import dk.mehmedbasic.jsonast.transform.MergeValueFunction
-import org.codehaus.jackson.JsonNode
 import org.codehaus.jackson.map.ObjectMapper
 import org.codehaus.jackson.node.ObjectNode
 import org.junit.Assert
@@ -178,7 +177,7 @@ class TestTransform {
                 .apply()
 
         document.transform(addedSelector)
-                .add(42d)
+                .addValue(42d)
                 .apply()
 
         Assert.assertNotNull("The object should now have a value named 'addedValue'", jonSnow.get(addedSelector))
