@@ -2,6 +2,7 @@ package dk.mehmedbasic.jsontransform
 
 import dk.mehmedbasic.jsonast.JsonDocument
 import dk.mehmedbasic.jsonast.JsonType
+import dk.mehmedbasic.jsonast.JsonValueNode
 import dk.mehmedbasic.jsonast.conversion.JacksonConverter
 import groovy.transform.TypeChecked
 import org.codehaus.jackson.map.ObjectMapper
@@ -83,6 +84,73 @@ class TestThesisExamples {
                 .deleteChild("person")
                 .apply()
     }
+
+    @Test
+    void traversal() {
+        println("Multiple transformations with hierarchy traversal")
+
+        document.transform("person")
+                .renameTo("bill")
+                .apply()
+                .transform("name")
+                .renameTo("namen")
+                .apply()
+    }
+
+    @Test
+    void multipleAdditions() {
+        println("Multiple additions")
+
+        document.transform("person")
+                .add("age", 60d)
+                .add("pet", JsonType.Object)
+                .apply()
+
+                .transform("pet")
+                .add("type", "dog")
+                .add("name", "bingo")
+                .apply()
+    }
+
+
+    @Test
+    void verbatimAddition() {
+        println("Verbatim additions")
+
+        document.transform("person")
+                .add("age", 60d)
+                .addJson("pet", '{"type":"dog", "name": "bingo"}')
+                .renameChild("pet", "bingo_the_dog")
+                .apply()
+
+    }
+
+    @Test
+    void manipulateValues() {
+        println("Manipulating values")
+
+        def closure = { JsonValueNode it ->
+            String newValue = it.stringValue().toLowerCase()
+            it.setValue(newValue)
+        }
+
+        document.transform("person")
+                .manipulateValue("name", closure)
+                .apply()
+    }
+
+    @Test
+    void withClause() {
+        println("Doing stuff using a 'with' clause")
+
+        document.with {
+            transform("person").add("john", "doe").apply()
+            transform("name").manipulateValue {
+                it.setValue(it.stringValue().toUpperCase())
+            }.apply()
+        }
+    }
+
 
     @After
     void printOut() {
