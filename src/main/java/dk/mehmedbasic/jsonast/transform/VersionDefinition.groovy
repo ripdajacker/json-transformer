@@ -8,7 +8,7 @@ import org.codehaus.groovy.control.CompilerConfiguration
  *
  * The transformations themselves are delegated directly to {@link JsonDocument}.
  */
-class VersionDefinition {
+class VersionDefinition implements Comparable<VersionDefinition> {
     int versionNumber
     String comment
 
@@ -96,5 +96,10 @@ class VersionDefinition {
     @SuppressWarnings("GroovyUnusedDeclaration")
     void transformations(Closure closure) {
         this.closure = closure
+    }
+
+    @Override
+    int compareTo(VersionDefinition that) {
+        return Integer.compare(this.versionNumber, that.versionNumber)
     }
 }
