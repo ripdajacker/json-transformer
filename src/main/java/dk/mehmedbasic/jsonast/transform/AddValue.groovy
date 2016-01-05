@@ -22,20 +22,27 @@ final class AddValue implements TransformStrategy {
 
     @Override
     void apply(JsonDocument document, JsonNodes root) {
-        def newChild = createNode(document)
-        newChild.identifier.name = name
-        if (value) {
-            if (newChild.array) {
-                newChild.addChild(new JsonValueNode(value))
-            } else if (newChild.valueNode) {
-                newChild.setValue(value)
+        def newChild = null
+        if (value instanceof BaseNode) {
+            // Verbatim addition
+            newChild = value as BaseNode
+            newChild.identifier.name = name
+        } else {
+            newChild = createNode(document)
+            newChild.identifier.name = name
+            if (value) {
+                if (newChild.array) {
+                    newChild.addChild(new JsonValueNode(value))
+                } else if (newChild.valueNode) {
+                    newChild.setValue(value)
+                }
             }
         }
 
         for (BaseNode node : root.roots) {
             node.addChild(newChild)
-
         }
+        document.recursivelyAdd(newChild)
     }
 
     private BaseNode createNode(JsonDocument document) {
