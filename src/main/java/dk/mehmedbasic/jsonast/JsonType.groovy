@@ -5,4 +5,17 @@ package dk.mehmedbasic.jsonast
  */
 enum JsonType {
     Value, Array, Object
+
+    static JsonType fromNode(BaseNode node) {
+        if (node.isArray()) {
+            return Array
+        }
+        if (node.isObject()) {
+            return Object
+        }
+        if (node.isValueNode()) {
+            return Value
+        }
+        return null
+    }
 }
