@@ -58,7 +58,22 @@ final class Transformer {
     }
 
     Transformer manipulateValue(ManipulateValueFunction function) {
-        functions << new Manipulator(function)
+        functions << new Manipulator(-1, null, function)
+        this
+    }
+
+    Transformer manipulateValue(int childIndex, ManipulateValueFunction function) {
+        functions << new Manipulator(childIndex, null, function)
+        this
+    }
+
+    Transformer manipulateValue(String childName, ManipulateValueFunction function) {
+        functions << new Manipulator(-1, childName, function)
+        this
+    }
+
+    Transformer manipulateValue(String childName, Closure closure) {
+        functions << new Manipulator(-1, childName, closure)
         this
     }
 

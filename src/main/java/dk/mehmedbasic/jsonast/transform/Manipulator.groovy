@@ -14,19 +14,53 @@ import groovy.transform.TypeChecked
 @PackageScope
 final class Manipulator implements TransformStrategy {
     ManipulateValueFunction function
+    Closure closure
 
-    Manipulator(ManipulateValueFunction function) {
+    String childName
+    int childIndex
+
+    Manipulator(int childIndex, String childName, ManipulateValueFunction function) {
+        this.childIndex = childIndex
+        this.childName = childName
         this.function = function
+    }
+
+    Manipulator(int childIndex, String childName, Closure closure) {
+        this.childIndex = childIndex
+        this.childName = childName
+        this.closure = closure
     }
 
     @Override
     void apply(JsonDocument document, JsonNodes root) {
-        if (function) {
-            for (BaseNode node : root) {
-                if (node.isValueNode()) {
-                    function.apply(node as JsonValueNode)
-                }
+        for (BaseNode node : root) {
+            if (childIndex >= 0) {
+                applyManipulation(node.get(childIndex))
+            } else if (childName) {
+                applyManipulation(node.get(childName))
+            } else {
+                applyManipulation(node)
             }
+        }
+    }
+
+    private void applyManipulation(BaseNode node) {
+        if (closure) {
+            applyClosure(node)
+        } else if (function) {
+            applyFunction(node)
+        }
+    }
+
+    private void applyClosure(BaseNode node) {
+        if (node.isValueNode()) {
+            closure.call(node as JsonValueNode)
+        }
+    }
+
+    private void applyFunction(BaseNode node) {
+        if (node.isValueNode()) {
+            function.apply(node as JsonValueNode)
         }
     }
 }
