@@ -95,6 +95,9 @@ class JacksonConverter {
         } else if (source.isValueNode()) {
             def result = new JsonValueNode()
             result.identifier.name = name
+            if (name == "@version") {
+                result.identifier.classes << "sysclass_version"
+            }
 
             if (source.isBoolean()) {
                 result.identifier.classes.add("boolean")
