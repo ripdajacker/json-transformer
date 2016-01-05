@@ -2,6 +2,7 @@ package dk.mehmedbasic.jsontransform
 
 import dk.mehmedbasic.jsonast.JsonDocument
 import dk.mehmedbasic.jsonast.conversion.JacksonConverter
+import dk.mehmedbasic.jsonast.transform.VersionControl
 import dk.mehmedbasic.jsonast.transform.VersionDefinition
 import org.codehaus.jackson.map.ObjectMapper
 import org.junit.After
@@ -57,6 +58,18 @@ class TestVersionDefinitions {
             printOut()
         }
         println("")
+
+    }
+
+    @Test
+    void versionControl() {
+        def control = new VersionControl(new File("src/main/resources/transformation_series_1"))
+
+        println("Before transformations:")
+        printOut()
+
+        control.apply(document, 5)
+
 
     }
 
