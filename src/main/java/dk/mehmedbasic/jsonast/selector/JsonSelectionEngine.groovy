@@ -23,7 +23,7 @@ class JsonSelectionEngine {
     }
 
     Selector parse() {
-        if (selectorList.length == 0) {
+        if (!selectorList || selectorList.length == 0) {
             return null
         }
         return selectorList.item(0)
