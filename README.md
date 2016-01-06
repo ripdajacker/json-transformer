@@ -101,3 +101,37 @@ The resulting JSON:
 }
 ```
 
+
+## Defining transformations as Groovy scripts
+
+It's possible to define transformation as `.groovy` files.
+
+The syntax is as follows:
+```groovy
+version 1
+comment "Renames the 'name' property to 'billy' and adds a dog named bingo."
+ 
+transformations {
+    transform("name")
+            .renameTo("billy")
+            .apply()
+ 
+    transform("person")
+            .addJson("dog", '{"type":"dog", "name": "bingo"}')
+            .apply()
+}
+```
+
+The script defines a version, a comment and a closure containing the transformations.
+The closure is executed with a `JsonDocument` as delegate.  
+
+To run these transformations you have to use an instance of the `VersionControl` class.
+Following code shows the steps needed to do so:
+                         
+```groovy
+def control = new VersionControl(new File("/path/to/directory/with/transformation scripts"))
+control.apply(document, desiredVersionNumber)
+```
+
+Every script in the directory is read.
+The version number used in the `apply` method will be the last transformation that is applied.
