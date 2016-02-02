@@ -62,7 +62,13 @@ class JacksonConverter {
                 def result = new ArrayNode(JsonNodeFactory.instance)
                 JsonArrayNode arrayNode = baseNode as JsonArrayNode
                 for (BaseNode childNode : arrayNode.children) {
-                    result.add(convertToJackson(childNode))
+                    def jackson = convertToJackson(childNode)
+                    for (Tuple2<String, String> pair : strategy.toJacksonInArray(childNode)) {
+                        if (jackson instanceof ObjectNode) {
+                            jackson.put(pair.getFirst(), pair.getSecond())
+                        }
+                    }
+                    result.add(jackson)
                 }
                 return result
             }
@@ -81,6 +87,7 @@ class JacksonConverter {
                 } else if (baseNode.isString()) {
                     return new TextNode(valueNode.stringValue())
                 }
+                return NullNode.instance
             }
             if (baseNode.isObject()) {
                 def result = new ObjectNode(JsonNodeFactory.instance)
@@ -149,7 +156,7 @@ class JacksonConverter {
                 }
                 return result
             }
-            return null
+            return new JsonValueNode(null)
         }
     }
 }

@@ -16,6 +16,9 @@ class VersionControl {
         Collections.sort(definitions)
     }
 
+    VersionControl() {
+    }
+
     /**
      * Applies the given version to the given JsonDocument.
      *

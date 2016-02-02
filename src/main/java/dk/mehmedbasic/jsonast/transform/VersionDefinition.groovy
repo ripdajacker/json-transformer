@@ -30,10 +30,12 @@ class VersionDefinition implements Comparable<VersionDefinition> {
         if (script) {
             script.setDelegate(delegate)
             script.run()
+            delegate.treeChanged()
         }
         if (closure) {
             closure.setDelegate(delegate)
             closure.run()
+            delegate.treeChanged()
         }
     }
 

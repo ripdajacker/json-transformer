@@ -17,5 +17,9 @@ class JsonIdentifier {
     JsonIdentifier(String name) {
         this.name = name
     }
+
+    String getName() {
+        return name
+    }
 }
 

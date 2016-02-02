@@ -1,6 +1,6 @@
 package dk.mehmedbasic.jsonast
 
-import groovy.transform.TypeChecked
+import groovy.transform.CompileStatic
 
 /**
  * The base Json node that is the superclass for all nodes in the system.
@@ -8,7 +8,7 @@ import groovy.transform.TypeChecked
  * All nodes are mutable, to accommodate the transformation logic.<br/>
  * This means that every transformer().apply() will potentially change the tree.<br/>
  */
-@TypeChecked
+@CompileStatic
 abstract class BaseNode implements NodeChangedListener {
     JsonIdentifier identifier = new JsonIdentifier()
     BaseNode parent
@@ -104,9 +104,9 @@ abstract class BaseNode implements NodeChangedListener {
      */
     void addChild(BaseNode node) {
         node.parent = this
-
-        nodeChanged(NodeChangeEventType.ChildrenChanged, this)
-        nodeChanged(NodeChangeEventType.ParentChanged, node)
+        node.listener = listener
+        nodeChanged(NodeChangeEventType.NodeAdded, node)
+        nodeChanged(NodeChangeEventType.NodeChanged, this)
     }
 
     /**
@@ -116,7 +116,7 @@ abstract class BaseNode implements NodeChangedListener {
      */
     void removeNode(BaseNode node) {
         if (node.parent == this) {
-            nodeChanged(NodeChangeEventType.ChildrenChanged, this)
+            nodeChanged(NodeChangeEventType.NodeDeleted, node)
         }
     }
 
@@ -153,7 +153,6 @@ abstract class BaseNode implements NodeChangedListener {
     void renameNode(BaseNode node, String name) {
         if (node.parent == this) {
             node.identifier.name = name
-            nodeChanged(NodeChangeEventType.IdentifierChanged, node)
         }
     }
 
@@ -190,7 +189,7 @@ abstract class BaseNode implements NodeChangedListener {
         if (newParent) {
             newParent.addChild(this)
         }
-        nodeChanged(NodeChangeEventType.ParentChanged, this)
+        nodeChanged(NodeChangeEventType.NodeChanged, this)
     }
 
     List<BaseNode> parents() {

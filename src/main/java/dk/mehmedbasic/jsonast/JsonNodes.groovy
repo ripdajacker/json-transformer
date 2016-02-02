@@ -1,11 +1,12 @@
 package dk.mehmedbasic.jsonast
 
-import com.google.common.collect.LinkedListMultimap
-import com.google.common.collect.Multimap
+import com.google.common.base.Predicate
+import com.google.common.base.Predicates
+import com.google.common.collect.*
 import dk.mehmedbasic.jsonast.selector.JsonSelectionEngine
 import dk.mehmedbasic.jsonast.selector.NodeFilter
 import dk.mehmedbasic.jsonast.transform.Transformer
-import groovy.transform.TypeChecked
+import groovy.transform.CompileStatic
 
 /**
  * A collection of BaseNode objects in a selectable form.
@@ -13,23 +14,46 @@ import groovy.transform.TypeChecked
  * This is a jquery-like object, that contains a list of roots.<br/>
  * When you select within this object, the query runs for all roots.
  */
-@TypeChecked
+@CompileStatic
 class JsonNodes implements Iterable<BaseNode> {
-    private Map<String, BaseNode> idToNode = new TreeMap<>()
-    private Multimap<String, BaseNode> nameToNode = LinkedListMultimap.create(10_000)
-    private Multimap<String, BaseNode> classesToNode = LinkedListMultimap.create(10_000)
+    protected Map<String, BaseNode> _idToNode = new TreeMap<>()
 
-    private Set<BaseNode> nodes = new HashSet<>(10_000, 1f)
-    Set<BaseNode> roots = new LinkedHashSet<>()
+    protected Multimap<String, BaseNode> _nameToNode = HashMultimap.create(10_0000, 100)
+    protected Multimap<String, BaseNode> _classesToNode = HashMultimap.create(10_0000, 100)
 
-    private Set<BaseNode> exclusions = new HashSet<>(1000, 1f)
+    protected Set<BaseNode> _nodes = new LinkedHashSet<>(10_000, 1f)
+    protected Set<BaseNode> _roots = new LinkedHashSet<>(5_000, 1f)
+
+    Set<BaseNode> exclusions = new LinkedHashSet<>(1000, 1f)
 
     private boolean dirty = false
-
     JsonDocument document
 
-    JsonNodes(JsonDocument document) {
-        this.document = document
+    private Predicate<BaseNode> nodesFilter = Predicates.alwaysTrue()
+    private Predicate<BaseNode> rootsFilter = Predicates.alwaysTrue()
+
+
+    private Map<String, BaseNode> cachedIdToNode
+    private Multimap<String, BaseNode> cachedNameToNode
+    private Multimap<String, BaseNode> cachedClassesTooNode
+
+    private Set<BaseNode> cachedRoots
+    private Set<BaseNode> cachedNodes
+
+    int _rootCount = -1
+
+    JsonNodes(JsonNodes parent) {
+        if (parent != null) {
+            document = parent.document
+
+            _classesToNode = parent._classesToNode
+            _idToNode = parent._idToNode
+            _nameToNode = parent._nameToNode
+
+            _nodes = parent.getNodes()
+            _roots = parent.getNodes()
+        }
+
     }
 
     /**
@@ -57,7 +81,7 @@ class JsonNodes implements Iterable<BaseNode> {
     Optional<BaseNode> selectSingle(String selector) {
         checkDirtyState()
         def result = select(selector)
-        if (result.length == 0) {
+        if (result.isEmpty()) {
             return Optional.empty()
         }
         return Optional.of(result.roots[0])
@@ -83,18 +107,25 @@ class JsonNodes implements Iterable<BaseNode> {
      */
     JsonNodes findByName(String name) {
         checkDirtyState()
-        def result = new JsonNodes(document)
         if (name == null) {
-            for (BaseNode root : roots) {
-                result.addRoot(root)
-            }
+            return this
         } else {
-            for (BaseNode node : nameToNode.get(name)) {
-                result.addRoot(node)
+            def result = new JsonNodes(this)
+
+            def named = nameToNode.get(name)
+            result._nodes = Sets.newLinkedHashSet(named)
+
+            def predicate = new Predicate<BaseNode>() {
+                @Override
+                boolean apply(BaseNode input) {
+                    return name.equals(input.getIdentifier().getName())
+                }
             }
+            result._roots = Sets.filter(Sets.newLinkedHashSet(named), predicate)
+
+            return result
         }
 
-        return result
     }
 
     /**
@@ -106,10 +137,11 @@ class JsonNodes implements Iterable<BaseNode> {
         if (exclusions.contains(root)) {
             return
         }
-        if (roots.contains(root)) {
+        if (_roots.contains(root)) {
             return
         }
-        roots.add(root)
+        _roots.add(root)
+        _rootCount++
         recursivelyAdd(root)
     }
 
@@ -144,7 +176,7 @@ class JsonNodes implements Iterable<BaseNode> {
      */
     void addNode(BaseNode node) {
         register(node)
-        this.nodes.add(node)
+        this._nodes.add(node)
     }
 
     /**
@@ -152,16 +184,16 @@ class JsonNodes implements Iterable<BaseNode> {
      *
      * @param node the node to register.
      */
-    private void register(BaseNode node) {
+    protected void register(BaseNode node) {
         if (node.identifier.id != null) {
-            idToNode.put(node.identifier.id, node)
+            _idToNode.put(node.identifier.id, node)
         }
         if (node.identifier.name != null) {
-            nameToNode.get(node.identifier.name).add(node)
+            _nameToNode.get(node.identifier.name).add(node)
         }
 
         for (String className : node.identifier.classes) {
-            classesToNode.get(className).add(node)
+            _classesToNode.get(className).add(node)
         }
     }
 
@@ -172,6 +204,7 @@ class JsonNodes implements Iterable<BaseNode> {
      */
     JsonNodes parent() {
         def result = new JsonNodes(document)
+        // TODO
         for (BaseNode root : roots) {
             if (root.parent) {
                 result.addRoot(root.parent)
@@ -219,13 +252,17 @@ class JsonNodes implements Iterable<BaseNode> {
      * @return the filtered subtree.
      */
     JsonNodes filter(NodeFilter filter) {
-        def result = new JsonNodes(document)
-        for (BaseNode node : nodes) {
-            if (filter.apply(node)) {
-                result.addRoot(node)
+        def nodes = new JsonNodes(this)
+        def predicate = new Predicate<BaseNode>() {
+            @Override
+            boolean apply(BaseNode input) {
+                return filter.apply(input)
             }
         }
-        return result
+        nodes.nodesFilter = predicate
+        nodes.rootsFilter = predicate
+
+        return nodes
     }
 
     /**
@@ -254,7 +291,7 @@ class JsonNodes implements Iterable<BaseNode> {
      */
     List<Tuple2<BaseNode, Integer>> closestTo(BaseNode node) {
         List<Tuple2<BaseNode, Integer>> distance = []
-        for (BaseNode that : this.nodes.findAll { it != node }) {
+        for (BaseNode that : nodes.findAll { it != node }) {
             distance << new Tuple2<BaseNode, Integer>(that, node.commonAncestor(that))
         }
         Collections.sort(distance, new Comparator<Tuple2<BaseNode, Integer>>() {
@@ -275,13 +312,36 @@ class JsonNodes implements Iterable<BaseNode> {
         return distance.findAll { it.second == shortest }
     }
 
+    private int getRootCount() {
+        if (_rootCount == -1) {
+            _rootCount = Iterables.size(getRoots())
+        }
+        return _rootCount
+    }
     /**
      * The number of roots in this subtree.
      *
      * @return the number of roots.
      */
     int getLength() {
-        roots.size()
+        rootCount
+    }
+    /**
+     * The number of roots in this subtree.
+     *
+     * @return the number of roots.
+     */
+    boolean isEmpty() {
+        return rootCount == 0
+    }
+
+    /**
+     * A optimization feature.
+     *
+     * @return if there is more than one root
+     */
+    boolean hasMoreThanOneRoot() {
+        return rootCount > 1
     }
 
     /**
@@ -309,19 +369,11 @@ class JsonNodes implements Iterable<BaseNode> {
      */
     private void checkDirtyState() {
         if (dirty) {
-            idToNode.clear()
-            nameToNode.clear()
-            classesToNode.clear()
+            cachedClassesTooNode = null
+            cachedIdToNode = null
+            cachedNameToNode = null
+            _rootCount = -1
 
-
-            List<BaseNode> copy = new ArrayList<>(nodes)
-            nodes.clear()
-            for (BaseNode node : copy) {
-                if (node.parent != null) {
-                    node.cleanDirtyState()
-                    addNode(node)
-                }
-            }
             dirty = false
         }
     }
@@ -332,4 +384,35 @@ class JsonNodes implements Iterable<BaseNode> {
     void treeChanged() {
         this.dirty = true
     }
+
+    Set<BaseNode> getRoots() {
+        if (cachedRoots == null) {
+            cachedRoots = Sets.filter(_roots, rootsFilter)
+        }
+        return cachedRoots
+
+    }
+
+    Set<BaseNode> getNodes() {
+        if (cachedNodes == null) {
+            cachedNodes = Sets.filter(_nodes, nodesFilter)
+        }
+        return cachedNodes
+    }
+
+    Map<String, BaseNode> getIdToNode() {
+        if (cachedIdToNode == null) {
+            cachedIdToNode = Maps.filterValues(_idToNode, nodesFilter)
+        }
+        return cachedIdToNode
+    }
+
+    Multimap<String, BaseNode> getNameToNode() {
+        if (cachedNameToNode == null) {
+            cachedNameToNode = Multimaps.filterValues(_nameToNode, nodesFilter)
+        }
+        return _nameToNode
+    }
+
+
 }

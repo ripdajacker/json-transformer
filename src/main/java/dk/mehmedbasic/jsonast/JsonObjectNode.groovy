@@ -18,7 +18,6 @@ class JsonObjectNode extends BaseNode {
 
     private void initializeMap() {
         if (nameToChildMap == null) {
-
             nameToChildMap = new TreeMap<>()
 
             for (BaseNode node : children) {
@@ -69,7 +68,8 @@ class JsonObjectNode extends BaseNode {
             children.remove(node)
             super.removeNode(node)
             node.parent = null
-            updateMap()
+
+            nodeChanged(NodeChangeEventType.NodeChanged, this)
         }
     }
 

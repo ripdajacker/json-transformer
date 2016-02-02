@@ -24,11 +24,13 @@ final class Deleter implements TransformStrategy {
     @Override
     void apply(JsonDocument document, JsonNodes root) {
         if (name) {
-            for (BaseNode node : root.roots) {
+            def nodes = new ArrayList<BaseNode>(root.roots)
+            for (BaseNode node : nodes) {
                 node.removeNode(name)
             }
         } else if (index >= 0) {
-            for (BaseNode node : root.roots) {
+            def nodes = new ArrayList<BaseNode>(root.roots)
+            for (BaseNode node : nodes) {
                 if (node.isObject() || node.isArray()) {
                     node.removeNode(index)
                 }
