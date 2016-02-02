@@ -7,20 +7,29 @@ import groovy.transform.TypeChecked
  */
 @TypeChecked
 class JsonObjectNode extends BaseNode {
-    List<BaseNode> children = new LinkedList<>()
+    LinkedList<BaseNode> children = new LinkedList<>()
 
-    private Map<String, BaseNode> nameToChildMap = [:]
+    private Map<String, BaseNode> nameToChildMap = new TreeMap<>()
 
-    private void updateMap() {
-        nameToChildMap.clear()
 
-        for (BaseNode node : children) {
-            nameToChildMap.put(node.identifier.name, node)
+    void updateMap() {
+        nameToChildMap = null
+    }
+
+    private void initializeMap() {
+        if (nameToChildMap == null) {
+
+            nameToChildMap = new TreeMap<>()
+
+            for (BaseNode node : children) {
+                nameToChildMap.put(node.identifier.name, node)
+            }
         }
     }
 
     @Override
     BaseNode get(String name) {
+        initializeMap()
         def node = nameToChildMap.get(name)
         if (node) {
             return node
@@ -30,9 +39,13 @@ class JsonObjectNode extends BaseNode {
 
     @Override
     void addChild(BaseNode node) {
+        addChildNoUpdate(node)
+        updateMap()
+    }
+
+    void addChildNoUpdate(BaseNode node) {
         super.addChild(node)
         children.add(node)
-        updateMap()
     }
 
 

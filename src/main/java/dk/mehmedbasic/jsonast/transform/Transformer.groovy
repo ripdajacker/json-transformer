@@ -93,7 +93,7 @@ final class Transformer {
             return this
         }
 
-        def root = parsed.roots.get(0)
+        def root = parsed.roots.iterator().next()
         functions << new AddValue(name, JsonType.fromNode(root), root)
         this
     }
