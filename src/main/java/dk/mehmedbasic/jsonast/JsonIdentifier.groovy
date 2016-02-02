@@ -10,4 +10,12 @@ class JsonIdentifier {
     String name
     String id
     Set<String> classes = []
+
+    JsonIdentifier() {
+    }
+
+    JsonIdentifier(String name) {
+        this.name = name
+    }
 }
+
