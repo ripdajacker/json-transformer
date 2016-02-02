@@ -15,14 +15,14 @@ import groovy.transform.TypeChecked
  */
 @TypeChecked
 class JsonNodes implements Iterable<BaseNode> {
-    private Map<String, BaseNode> idToNode = [:]
-    private Multimap<String, BaseNode> nameToNode = LinkedListMultimap.create()
-    private Multimap<String, BaseNode> classesToNode = LinkedListMultimap.create()
+    private Map<String, BaseNode> idToNode = new TreeMap<>()
+    private Multimap<String, BaseNode> nameToNode = LinkedListMultimap.create(10_000)
+    private Multimap<String, BaseNode> classesToNode = LinkedListMultimap.create(10_000)
 
-    private List<BaseNode> nodes = new LinkedList<>()
-    List<BaseNode> roots = new LinkedList<>()
+    private Set<BaseNode> nodes = new HashSet<>(10_000, 1f)
+    Set<BaseNode> roots = new LinkedHashSet<>()
 
-    private List<BaseNode> exclusions = new LinkedList<>()
+    private Set<BaseNode> exclusions = new HashSet<>(1000, 1f)
 
     private boolean dirty = false
 
@@ -153,8 +153,12 @@ class JsonNodes implements Iterable<BaseNode> {
      * @param node the node to register.
      */
     private void register(BaseNode node) {
-        idToNode.put(node.identifier.id, node)
-        nameToNode.get(node.identifier.name).add(node)
+        if (node.identifier.id != null) {
+            idToNode.put(node.identifier.id, node)
+        }
+        if (node.identifier.name != null) {
+            nameToNode.get(node.identifier.name).add(node)
+        }
 
         for (String className : node.identifier.classes) {
             classesToNode.get(className).add(node)
@@ -196,13 +200,10 @@ class JsonNodes implements Iterable<BaseNode> {
         return result
     }
 
-    private static BaseNode findRelevantParent(BaseNode root, List<BaseNode> potentials) {
-        for (BaseNode parent : root.parents()) {
-            if (potentials.contains(parent)) {
-                return parent
-            }
+    private static BaseNode findRelevantParent(BaseNode root, Set<BaseNode> potentials) {
+        root.parents().find {
+            potentials.contains(it)
         }
-        return null
     }
 
     @Override
@@ -281,6 +282,15 @@ class JsonNodes implements Iterable<BaseNode> {
      */
     int getLength() {
         roots.size()
+    }
+
+    /**
+     * The number of nodes in the subtree.
+     *
+     * @return the number of nodes.
+     */
+    int getNodeCount() {
+        nodes.size()
     }
 
     /**
