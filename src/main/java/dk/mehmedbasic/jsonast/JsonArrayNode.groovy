@@ -1,5 +1,6 @@
 package dk.mehmedbasic.jsonast
 
+import com.google.common.collect.Iterables
 import groovy.transform.TypeChecked
 
 /**
@@ -7,7 +8,7 @@ import groovy.transform.TypeChecked
  */
 @TypeChecked
 class JsonArrayNode extends BaseNode {
-    List<BaseNode> children = new LinkedList<>()
+    Set<BaseNode> children = new LinkedHashSet<>()
 
     @Override
     boolean isArray() {
@@ -18,7 +19,7 @@ class JsonArrayNode extends BaseNode {
     @Override
     BaseNode get(int index) {
         if (index < children.size()) {
-            return children.get(index)
+            return Iterables.get(children, index)
         }
         null
     }

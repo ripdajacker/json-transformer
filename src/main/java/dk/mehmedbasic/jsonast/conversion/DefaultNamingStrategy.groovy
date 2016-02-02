@@ -13,6 +13,11 @@ import org.codehaus.jackson.node.ValueNode
 @TypeChecked
 class DefaultNamingStrategy implements ConversionNamingStrategy {
     @Override
+    List<Tuple2<String, String>> toJacksonInArray(BaseNode node) {
+        return []
+    }
+
+    @Override
     String toJackson(BaseNode node) {
         return node.identifier.name
     }

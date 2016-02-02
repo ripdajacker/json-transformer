@@ -36,7 +36,7 @@ final class Manipulator implements TransformStrategy {
         for (BaseNode node : root) {
             if (childIndex >= 0) {
                 applyManipulation(node.get(childIndex))
-            } else if (childName) {
+            } else if (childName != null) {
                 applyManipulation(node.get(childName))
             } else {
                 applyManipulation(node)

@@ -145,7 +145,7 @@ class TestTransform {
         def residents = document.select(selector)
         Assert.assertEquals("Selection should have 1 child", 1, residents.length)
 
-        def residentsArray = residents.roots.get(0)
+        def residentsArray = residents.roots.asList().get(0)
         def child = residentsArray.get(0)
         Assert.assertEquals("The child should be Ratty McRatson", "Ratty McRatson", child.get("name").value)
     }

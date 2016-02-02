@@ -24,7 +24,8 @@ final class Partitioner implements TransformStrategy {
 
     @Override
     void apply(JsonDocument document, JsonNodes root) {
-        for (BaseNode source : root.roots) {
+        def nodes = new ArrayList<BaseNode>(root.roots)
+        for (BaseNode source : nodes) {
             for (Tuple2<String, List<String>> partition : partitionKeys) {
                 def keys = partition.second
                 if (source.isObject()) {

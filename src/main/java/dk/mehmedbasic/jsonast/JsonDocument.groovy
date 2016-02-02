@@ -6,11 +6,17 @@ import org.codehaus.jackson.map.ObjectMapper
 /**
  * A json document.
  */
-public class JsonDocument extends JsonNodes {
+public class JsonDocument extends JsonNodes implements NodeChangedListener {
 
     JsonDocument() {
         super(null)
         document = this
+    }
+
+    @Override
+    void addNode(BaseNode node) {
+        super.addNode(node)
+        node.listener = this
     }
 
     JsonValueNode createValueNode() {
@@ -43,4 +49,42 @@ public class JsonDocument extends JsonNodes {
         return JacksonConverter.asTransformable(tree)
     }
 
+    @Override
+    void nodeChanged(NodeChangeEventType type, BaseNode node) {
+        if (type == NodeChangeEventType.NodeDeleted) {
+            privateRemove(node)
+        } else if (type == NodeChangeEventType.NodeAdded) {
+            privateAdd(node)
+        } else if (type == NodeChangeEventType.NodeChanged) {
+            privateRemove(node)
+            privateAdd(node)
+
+            node.cleanDirtyState()
+        }
+    }
+
+    private void privateAdd(BaseNode node) {
+        if (!_nodes.contains(node)) {
+            _nodes.add(node)
+            register(node)
+        }
+    }
+
+    private void privateRemove(BaseNode node) {
+        def id = node.identifier.id
+        if (id != null) {
+            _idToNode.remove(id)
+        }
+        def name = node.identifier.name
+        if (name != null) {
+            _nameToNode.get(name).remove(node)
+        }
+
+        for (String className : node.identifier.classes) {
+            _classesToNode.get(className).remove(node)
+        }
+
+        _nodes.remove(node)
+        _roots.remove(node)
+    }
 }

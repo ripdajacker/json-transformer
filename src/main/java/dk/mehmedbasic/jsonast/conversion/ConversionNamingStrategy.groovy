@@ -13,6 +13,8 @@ import org.codehaus.jackson.node.ValueNode
 @TypeChecked
 interface ConversionNamingStrategy {
 
+    List<Tuple2<String, String>> toJacksonInArray(BaseNode node)
+
     String toJackson(BaseNode node)
 
     JsonIdentifier toTransformable(String name, ObjectNode objectNode)

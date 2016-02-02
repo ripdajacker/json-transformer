@@ -4,7 +4,7 @@ import dk.mehmedbasic.jsonast.*
 import groovy.transform.PackageScope
 
 /**
- * TODO[JEKM] - someone remind me to document this class.
+ * Adds a value
  */
 @PackageScope
 final class AddValue implements TransformStrategy {
@@ -39,7 +39,9 @@ final class AddValue implements TransformStrategy {
             }
         }
 
-        for (BaseNode node : root.roots) {
+
+        def roots = root.roots.asList()
+        for (BaseNode node : roots) {
             node.addChild(newChild)
         }
         document.recursivelyAdd(newChild)

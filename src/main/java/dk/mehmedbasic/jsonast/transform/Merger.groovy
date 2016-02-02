@@ -34,7 +34,7 @@ final class Merger implements TransformStrategy {
 
             BaseNode destination = null
 
-            if (newDestinations.length > 1) {
+            if (newDestinations.hasMoreThanOneRoot()) {
                 def closest = newDestinations.closestTo(source)
                 if (closest.size() == 0) {
                     log.warning("Found ambiguous destinations for ($source, $selector)")
@@ -43,7 +43,7 @@ final class Merger implements TransformStrategy {
                 } else {
                     destination = closest.first().first
                 }
-            } else if (newDestinations.length == 0) {
+            } else if (newDestinations.isEmpty()) {
                 log.warning("Found zero potential destinations for ($source, $selector)")
             } else {
                 destination = newDestinations.roots.first()

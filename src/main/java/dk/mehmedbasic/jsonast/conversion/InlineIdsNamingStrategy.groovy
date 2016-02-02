@@ -17,6 +17,11 @@ class InlineIdsNamingStrategy implements ConversionNamingStrategy {
     private static Pattern PATTERN_NAME_AND_ID = Pattern.compile(/([A-Za-z0-9]+) #(\-?[0-9a-f]+)\s*$/)
 
     @Override
+    List<Tuple2<String, String>> toJacksonInArray(BaseNode node) {
+        return [new Tuple2<String, String>("@id", node.identifier.id)]
+    }
+
+    @Override
     String toJackson(BaseNode node) {
         if (node.identifier.id != null) {
             return "${node.identifier.name} #${node.identifier.id}"
