@@ -72,15 +72,15 @@ public class JsonDocument extends JsonNodes implements NodeChangedListener {
     private void privateRemove(BaseNode node) {
         def id = node.identifier.id
         if (id != null) {
-            _idToNode.remove(id)
+            idToNode.remove(id)
         }
         def name = node.identifier.name
         if (name != null) {
-            _nameToNode.get(name).remove(node)
+            nameToNode.get(name).remove(node)
         }
 
         for (String className : node.identifier.classes) {
-            _classesToNode.get(className).remove(node)
+            classesToNode.get(className).remove(node)
         }
 
         nodes.remove(node)
