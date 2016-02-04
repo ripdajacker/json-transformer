@@ -95,6 +95,7 @@ class TestThesisExamples {
                 .transform("name")
                 .renameTo("namen")
                 .apply()
+        printOut()
     }
 
     @Test

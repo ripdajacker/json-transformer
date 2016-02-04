@@ -53,6 +53,7 @@ class JacksonConverter {
         }
 
         JsonNode asJacksonNode(JsonDocument document) {
+            def roots = document.roots
             return convertToJackson(document.iterator().next())
         }
 

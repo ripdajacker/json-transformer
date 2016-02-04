@@ -153,6 +153,8 @@ abstract class BaseNode implements NodeChangedListener {
     void renameNode(BaseNode node, String name) {
         if (node.parent == this) {
             node.identifier.name = name
+            nodeChanged(NodeChangeEventType.NodeChanged, node)
+            nodeChanged(NodeChangeEventType.NodeChanged, this)
         }
     }
 
