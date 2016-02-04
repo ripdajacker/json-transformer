@@ -18,8 +18,8 @@ import groovy.transform.CompileStatic
 class JsonNodes implements Iterable<BaseNode> {
     protected Map<String, BaseNode> _idToNode = new TreeMap<>()
 
-    protected Multimap<String, BaseNode> _nameToNode = HashMultimap.create(10_0000, 100)
-    protected Multimap<String, BaseNode> _classesToNode = HashMultimap.create(10_0000, 100)
+    protected Multimap<String, BaseNode> _nameToNode = LinkedHashMultimap.create(10_0000, 100)
+    protected Multimap<String, BaseNode> _classesToNode = LinkedHashMultimap.create(10_0000, 100)
 
     protected Set<BaseNode> _nodes = new LinkedHashSet<>(10_000, 1f)
     protected Set<BaseNode> _roots = new LinkedHashSet<>(5_000, 1f)
@@ -50,8 +50,8 @@ class JsonNodes implements Iterable<BaseNode> {
             _idToNode = parent._idToNode
             _nameToNode = parent._nameToNode
 
-            _nodes = parent.getNodes()
-            _roots = parent.getNodes()
+            _roots = parent.nodes
+            _nodes = parent.nodes
         }
 
     }
@@ -111,17 +111,9 @@ class JsonNodes implements Iterable<BaseNode> {
             return this
         } else {
             def result = new JsonNodes(this)
-
             def named = nameToNode.get(name)
-            result._nodes = Sets.newLinkedHashSet(named)
 
-            def predicate = new Predicate<BaseNode>() {
-                @Override
-                boolean apply(BaseNode input) {
-                    return name.equals(input.getIdentifier().getName())
-                }
-            }
-            result._roots = Sets.filter(Sets.newLinkedHashSet(named), predicate)
+            result._roots = Sets.newLinkedHashSet(named)
 
             return result
         }
@@ -253,14 +245,30 @@ class JsonNodes implements Iterable<BaseNode> {
      */
     JsonNodes filter(NodeFilter filter) {
         def nodes = new JsonNodes(this)
-        def predicate = new Predicate<BaseNode>() {
+
+        def filterPredicate = new Predicate<BaseNode>() {
             @Override
             boolean apply(BaseNode input) {
                 return filter.apply(input)
             }
         }
-        nodes.nodesFilter = predicate
-        nodes.rootsFilter = predicate
+
+
+        def descendantOfThis = new Predicate<BaseNode>() {
+            @Override
+            boolean apply(BaseNode input) {
+                for (BaseNode node : nodes.roots) {
+                    if (input.parents().contains(node)) {
+                        return true
+
+                    }
+                }
+                return false
+            }
+        }
+
+        nodes.rootsFilter = filterPredicate
+        nodes.nodesFilter = descendantOfThis
 
         return nodes
     }
@@ -291,7 +299,7 @@ class JsonNodes implements Iterable<BaseNode> {
      */
     List<Tuple2<BaseNode, Integer>> closestTo(BaseNode node) {
         List<Tuple2<BaseNode, Integer>> distance = []
-        for (BaseNode that : nodes.findAll { it != node }) {
+        for (BaseNode that : roots.findAll { it != node }) {
             distance << new Tuple2<BaseNode, Integer>(that, node.commonAncestor(that))
         }
         Collections.sort(distance, new Comparator<Tuple2<BaseNode, Integer>>() {
@@ -342,15 +350,6 @@ class JsonNodes implements Iterable<BaseNode> {
      */
     boolean hasMoreThanOneRoot() {
         return rootCount > 1
-    }
-
-    /**
-     * The number of nodes in the subtree.
-     *
-     * @return the number of nodes.
-     */
-    int getNodeCount() {
-        nodes.size()
     }
 
     /**

@@ -20,17 +20,18 @@ final class Merger implements TransformStrategy {
     }
 
     public void apply(JsonDocument document, JsonNodes root) {
-        for (BaseNode source : root.roots) {
-            def parents = new JsonNodes(document)
-            parents.addExclusion(source)
-            for (BaseNode parent : source.parents()) {
-                parents.addRoot(parent)
-            }
+        def nodes = new ArrayList<BaseNode>(root.roots)
+        def queryNodes = new JsonNodes(root)
+
+        log.info("Attempting merge of of ${nodes.size()} elements")
+        for (BaseNode source : nodes) {
+            queryNodes.exclusions.clear()
+            queryNodes.addExclusion(source)
 
             def parser = new JsonSelectionEngine(selector)
 
             def parsedSelector = parser.parse()
-            def newDestinations = parser.execute(parsedSelector, parents)
+            def newDestinations = parser.execute(parsedSelector, queryNodes)
 
             BaseNode destination = null
 

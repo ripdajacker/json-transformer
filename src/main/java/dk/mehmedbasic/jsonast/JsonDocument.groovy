@@ -7,6 +7,7 @@ import org.codehaus.jackson.map.ObjectMapper
  * A json document.
  */
 public class JsonDocument extends JsonNodes implements NodeChangedListener {
+    protected Set<BaseNode> nodes = new LinkedHashSet<>()
 
     JsonDocument() {
         super(null)
@@ -17,6 +18,7 @@ public class JsonDocument extends JsonNodes implements NodeChangedListener {
     void addNode(BaseNode node) {
         super.addNode(node)
         node.listener = this
+        nodes.add(node)
     }
 
     JsonValueNode createValueNode() {
@@ -64,10 +66,7 @@ public class JsonDocument extends JsonNodes implements NodeChangedListener {
     }
 
     private void privateAdd(BaseNode node) {
-        if (!_nodes.contains(node)) {
-            _nodes.add(node)
-            register(node)
-        }
+        register(node)
     }
 
     private void privateRemove(BaseNode node) {
@@ -84,7 +83,6 @@ public class JsonDocument extends JsonNodes implements NodeChangedListener {
             _classesToNode.get(className).remove(node)
         }
 
-        _nodes.remove(node)
-        _roots.remove(node)
+        nodes.remove(node)
     }
 }

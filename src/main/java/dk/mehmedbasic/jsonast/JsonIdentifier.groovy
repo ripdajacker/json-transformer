@@ -21,5 +21,10 @@ class JsonIdentifier {
     String getName() {
         return name
     }
+
+    @Override
+    String toString() {
+        return "Identifier[$name, #$id, classes: $classes]"
+    }
 }
 
