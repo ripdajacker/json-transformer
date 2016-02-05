@@ -3,13 +3,13 @@ package dk.mehmedbasic.jsonast.transform
 import dk.mehmedbasic.jsonast.*
 import dk.mehmedbasic.jsonast.selector.JsonSelectionEngine
 import groovy.transform.PackageScope
-import groovy.util.logging.Log
+import groovy.util.logging.Slf4j
 
 /**
  * A merger manipulation. Merges two values into one
  */
 @PackageScope
-@Log
+@Slf4j
 final class Merger implements TransformStrategy {
     final String selector
     MergeValueFunction function
@@ -38,14 +38,14 @@ final class Merger implements TransformStrategy {
             if (newDestinations.hasMoreThanOneRoot()) {
                 def closest = newDestinations.closestTo(source)
                 if (closest.size() == 0) {
-                    log.warning("Found ambiguous destinations for ($source, $selector)")
+                    log.warn("Found ambiguous destinations for ($source, $selector)")
                 } else if (closest.size() > 1) {
-                    log.warning("Found more than one potential destination for ($source, $selector)")
+                    log.warn("Found more than one potential destination for ($source, $selector)")
                 } else {
                     destination = closest.first().first
                 }
             } else if (newDestinations.isEmpty()) {
-                log.warning("Found zero potential destinations for ($source, $selector)")
+                log.warn("Found zero potential destinations for ($source, $selector)")
             } else {
                 destination = newDestinations.roots.first()
             }
