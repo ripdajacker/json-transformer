@@ -21,15 +21,15 @@ class JsonValueNode extends BaseNode {
     }
 
     void setValue(int value) {
-        this.value = Integer.valueOf(value)
+        this.value = value
     }
 
     void setValue(double value) {
-        this.value = Double.valueOf(value)
+        this.value = value
     }
 
     void setValue(boolean value) {
-        this.value = Boolean.valueOf(value)
+        this.value = value
     }
 
     Object getValue() {
@@ -80,5 +80,10 @@ class JsonValueNode extends BaseNode {
     @Override
     void addChild(BaseNode node) {
         throw new UnsupportedOperationException("You cannot add a child to a value node.")
+    }
+
+    @Override
+    public String toString() {
+        return "JsonValueNode($value)"
     }
 }

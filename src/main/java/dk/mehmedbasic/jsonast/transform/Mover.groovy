@@ -3,7 +3,6 @@ package dk.mehmedbasic.jsonast.transform
 import dk.mehmedbasic.jsonast.BaseNode
 import dk.mehmedbasic.jsonast.JsonDocument
 import dk.mehmedbasic.jsonast.JsonNodes
-import dk.mehmedbasic.jsonast.selector.JsonSelectionEngine
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 import groovy.util.logging.Slf4j
@@ -23,32 +22,28 @@ final class Mover implements TransformStrategy {
 
     @Override
     void apply(JsonDocument document, JsonNodes root) {
-        def nodes = new ArrayList<BaseNode>(root.roots)
-        def queryNodes = new JsonNodes(root)
+        def queryRoot = document.select(null)
 
-        log.info("Attempting move of ${nodes.size()} elements")
-        Map<String, Integer> messages = [:]
-        for (BaseNode source : nodes) {
-            queryNodes.exclusions.clear()
-            queryNodes.addExclusion(source)
+        List<Tuple2<BaseNode, BaseNode>> changes = []
 
-            def parser = new JsonSelectionEngine(selector)
+        log.info("Attempting move of ${root.size()} elements")
 
-            def parsedSelector = parser.parse()
-            def newDestinations = parser.execute(parsedSelector, queryNodes)
+        for (BaseNode source : root.roots) {
+            queryRoot.exclusions.clear()
+            queryRoot.exclusions.add(source)
+
+            def newDestinations = queryRoot.select(selector)
+
             BaseNode destination = null
 
             if (newDestinations.empty) {
-                def key = "Found zero potential destinations "
-                messages.put(key, (messages.get(key) ?: 0) + 1)
-            } else if (newDestinations.hasMoreThanOneRoot()) {
+                log.debug("Found zero potential destinations for ($source, $selector)")
+            } else if (newDestinations.size() > 1) {
                 def closest = newDestinations.closestTo(source)
                 if (closest.size() == 0) {
-                    def key = "Found ambiguous destinations"
-                    messages.put(key, (messages.get(key) ?: 0) + 1)
+                    log.debug("Found ambiguous destinations for ($source, $selector)")
                 } else if (closest.size() > 1) {
-                    def key = "Found more than one potential destination"
-                    messages.put(key, (messages.get(key) ?: 0) + 1)
+                    log.debug("Found more than one potential destination for ($source, $selector)")
                 } else {
                     destination = closest.first().first
                 }
@@ -56,12 +51,16 @@ final class Mover implements TransformStrategy {
                 destination = newDestinations.getRoots().iterator().next()
             }
 
-            if (destination) {
-                source.changeParent(destination)
+            if (destination != null) {
+                changes << new Tuple2<BaseNode, BaseNode>(source, destination)
             }
         }
-        for (String key : messages.keySet().asList().sort()) {
-            log.info("$key ${messages.get(key)} time(s)")
+
+        changes.each {
+            def source = it.first
+            def destination = it.second
+
+            source.changeParent(destination)
         }
     }
 }

@@ -1,14 +1,14 @@
 package dk.mehmedbasic.jsonast.conversion
 
 import dk.mehmedbasic.jsonast.*
-import groovy.transform.TypeChecked
+import groovy.transform.CompileStatic
 import org.codehaus.jackson.JsonNode
 import org.codehaus.jackson.node.*
 
 /**
  * Converts jackson nodes to dk.mehmedbasic.jsonast nodes.
  */
-@TypeChecked
+@CompileStatic
 class JacksonConverter {
 
     /**
@@ -53,7 +53,6 @@ class JacksonConverter {
         }
 
         JsonNode asJacksonNode(JsonDocument document) {
-            def roots = document.roots
             return convertToJackson(document.iterator().next())
         }
 
@@ -64,8 +63,8 @@ class JacksonConverter {
                 JsonArrayNode arrayNode = baseNode as JsonArrayNode
                 for (BaseNode childNode : arrayNode.children) {
                     def jackson = convertToJackson(childNode)
-                    for (Tuple2<String, String> pair : strategy.toJacksonInArray(childNode)) {
-                        if (jackson instanceof ObjectNode) {
+                    if (jackson instanceof ObjectNode) {
+                        for (Tuple2<String, String> pair : strategy.toJacksonInArray(childNode)) {
                             jackson.put(pair.getFirst(), pair.getSecond())
                         }
                     }
@@ -95,7 +94,7 @@ class JacksonConverter {
                 def objectNode = baseNode as JsonObjectNode
 
                 for (BaseNode childNode : objectNode.children) {
-                    result.put(strategy.toJackson(childNode), convertToJackson(childNode))
+                    result.put(strategy.toJacksonName(childNode), convertToJackson(childNode))
                 }
                 return result
             }
@@ -113,31 +112,32 @@ class JacksonConverter {
         private BaseNode convertToTransformable(String name, JsonNode source) {
             if (source.isObject()) {
                 def result = new JsonObjectNode()
-                result.identifier = strategy.toTransformable(name, source as ObjectNode)
+                def objectNode = source as ObjectNode
+
+                result.identifier = strategy.toTransformableName(name, result)
                 result.identifier.classes.add("object")
 
-                ObjectNode object = source as ObjectNode
-                Iterator<Map.Entry<String, JsonNode>> fields = object.fields
+                Iterator<Map.Entry<String, JsonNode>> fields = objectNode.fields
                 while (fields.hasNext()) {
                     Map.Entry<String, JsonNode> entry = fields.next();
-                    result.addChildNoUpdate(convertToTransformable(entry.key, entry.value))
+                    result.addChild(convertToTransformable(entry.key, entry.value))
                 }
-                result.updateMap()
-
                 return result
             } else if (source.isArray()) {
                 def result = new JsonArrayNode()
-                result.identifier = strategy.toTransformable(name, source as ArrayNode)
+                def arrayNode = source as ArrayNode
+
+                result.identifier = strategy.toTransformableName(name, result)
                 result.identifier.classes.add("array")
 
-                ArrayNode array = source as ArrayNode
+                ArrayNode array = arrayNode
                 for (JsonNode node : array) {
                     result.addChild(convertToTransformable(null, node))
                 }
                 return result
             } else if (source.isValueNode()) {
                 def result = new JsonValueNode()
-                result.identifier = strategy.toTransformable(name, source as ValueNode)
+                result.identifier = strategy.toTransformableName(name, result)
                 if (name == "@version") {
                     result.identifier.classes << "sysclass_version"
                 }

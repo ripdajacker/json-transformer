@@ -14,7 +14,6 @@ import org.junit.Test
 class TestQueriesOnVeryLargeTrees {
     JsonDocument document
 
-
     @Before
     void prepare() {
         def mapper = new ObjectMapper()

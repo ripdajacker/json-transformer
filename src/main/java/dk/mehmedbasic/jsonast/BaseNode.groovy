@@ -9,10 +9,9 @@ import groovy.transform.CompileStatic
  * This means that every transformer().apply() will potentially change the tree.<br/>
  */
 @CompileStatic
-abstract class BaseNode implements NodeChangedListener {
+abstract class BaseNode {
     JsonIdentifier identifier = new JsonIdentifier()
     BaseNode parent
-    NodeChangedListener listener
 
     /**
      * Whether or not this is a value node.
@@ -104,9 +103,6 @@ abstract class BaseNode implements NodeChangedListener {
      */
     void addChild(BaseNode node) {
         node.parent = this
-        node.listener = listener
-        nodeChanged(NodeChangeEventType.NodeAdded, node)
-        nodeChanged(NodeChangeEventType.NodeChanged, this)
     }
 
     /**
@@ -115,9 +111,6 @@ abstract class BaseNode implements NodeChangedListener {
      * @param node the node to remove.
      */
     void removeNode(BaseNode node) {
-        if (node.parent == this) {
-            nodeChanged(NodeChangeEventType.NodeDeleted, node)
-        }
     }
 
     /**
@@ -153,8 +146,6 @@ abstract class BaseNode implements NodeChangedListener {
     void renameNode(BaseNode node, String name) {
         if (node.parent == this) {
             node.identifier.name = name
-            nodeChanged(NodeChangeEventType.NodeChanged, node)
-            nodeChanged(NodeChangeEventType.NodeChanged, this)
         }
     }
 
@@ -171,13 +162,6 @@ abstract class BaseNode implements NodeChangedListener {
         }
     }
 
-    @Override
-    void nodeChanged(NodeChangeEventType type, BaseNode node) {
-        if (listener) {
-            listener.nodeChanged(type, node)
-        }
-    }
-
     /**
      * Changes the parent of this node to the given parent.
      *
@@ -191,7 +175,6 @@ abstract class BaseNode implements NodeChangedListener {
         if (newParent) {
             newParent.addChild(this)
         }
-        nodeChanged(NodeChangeEventType.NodeChanged, this)
     }
 
     List<BaseNode> parents() {
@@ -206,18 +189,12 @@ abstract class BaseNode implements NodeChangedListener {
     }
 
     /**
-     * Called when the nodes subtree is dirty.
-     */
-    void cleanDirtyState() {
-    }
-
-    /**
      * Calculates the number of jumps to the common ancestor to the given node.
      *
      * @param baseNode the node in question.
      * @return the number of jumps to the first common ancestor.
      */
-    int commonAncestor(BaseNode baseNode) {
+    int editDistance(BaseNode baseNode) {
         def thisParents = parents()
         def thatParents = baseNode.parents()
 

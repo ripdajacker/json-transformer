@@ -1,9 +1,9 @@
 package dk.mehmedbasic.jsonast
 
-import com.google.common.base.Predicate
-import com.google.common.collect.*
+import dk.mehmedbasic.jsonast.selector.InFilter
 import dk.mehmedbasic.jsonast.selector.JsonSelectionEngine
 import dk.mehmedbasic.jsonast.selector.NodeFilter
+import dk.mehmedbasic.jsonast.selector.NodeNameFilter
 import dk.mehmedbasic.jsonast.transform.Transformer
 import groovy.transform.CompileStatic
 
@@ -16,33 +16,18 @@ import groovy.transform.CompileStatic
  */
 @CompileStatic
 class JsonNodes implements Iterable<BaseNode> {
-    Map<String, BaseNode> idToNode = new TreeMap<>()
-
-    Multimap<String, BaseNode> nameToNode = LinkedHashMultimap.create(10_0000, 100)
-    Multimap<String, BaseNode> classesToNode = LinkedHashMultimap.create(10_0000, 100)
-
-    Set<BaseNode> nodes = new LinkedHashSet<>(10_000, 1f)
     Set<BaseNode> roots = new LinkedHashSet<>(5_000, 1f)
-
     Set<BaseNode> exclusions = new LinkedHashSet<>(1000, 1f)
 
-    private boolean dirty = false
     JsonDocument document
 
-    int _rootCount = -1
+    JsonNodes() {
+    }
 
-    JsonNodes(JsonNodes parent) {
+    private JsonNodes(JsonNodes parent) {
         if (parent != null) {
             document = parent.document
-
-            classesToNode = parent.classesToNode
-            idToNode = parent.idToNode
-            nameToNode = parent.nameToNode
-
-            roots = parent.nodes
-            nodes = parent.nodes
         }
-
     }
 
     /**
@@ -53,9 +38,10 @@ class JsonNodes implements Iterable<BaseNode> {
      * @return a subtree containing the selected nodes.
      */
     JsonNodes select(String selector) {
-        checkDirtyState()
         if (selector == null || selector.trim().isEmpty()) {
-            return this;
+            def nodes = new JsonNodes(this)
+            nodes.roots = new LinkedHashSet<>(roots)
+            return nodes;
         }
         def engine = new JsonSelectionEngine(selector)
         engine.execute(this)
@@ -68,23 +54,11 @@ class JsonNodes implements Iterable<BaseNode> {
      * @return an optional BaseNode value.
      */
     Optional<BaseNode> selectSingle(String selector) {
-        checkDirtyState()
         def result = select(selector)
         if (result.isEmpty()) {
             return Optional.empty()
         }
         return Optional.of(result.roots[0])
-    }
-
-    /**
-     * Finds a node by id.
-     *
-     * @param id the id of the node.
-     * @return an optional BaseNode value.
-     */
-    Optional<BaseNode> findById(String id) {
-        checkDirtyState()
-        return Optional.ofNullable(idToNode.get(id))
     }
 
     /**
@@ -95,15 +69,13 @@ class JsonNodes implements Iterable<BaseNode> {
      * @return the resulting subtree.
      */
     JsonNodes findByName(String name) {
-        checkDirtyState()
         if (name == null) {
             return this
         } else {
             def result = new JsonNodes(this)
-            def named = nameToNode.get(name)
-
-            result.roots = Sets.newLinkedHashSet(named)
-
+            for (BaseNode node : roots) {
+                collectFiltered(result.roots, node, createNameFilter(name))
+            }
             return result
         }
 
@@ -122,60 +94,6 @@ class JsonNodes implements Iterable<BaseNode> {
             return
         }
         roots.add(root)
-        _rootCount++
-        recursivelyAdd(root)
-    }
-
-    /**
-     * Recursively add the given node and its entire subtree.
-     *
-     * @param node the node to traverse.
-     */
-    void recursivelyAdd(BaseNode node) {
-        if (exclusions.contains(node)) {
-            return
-        }
-        addNode(node)
-        if (node.isArray()) {
-            def arrayNode = node as JsonArrayNode
-            for (BaseNode child : arrayNode.children) {
-                recursivelyAdd(child)
-            }
-        } else if (node.isObject()) {
-            def objectNode = node as JsonObjectNode
-            for (BaseNode child : objectNode.children) {
-                recursivelyAdd(child)
-            }
-        }
-
-    }
-
-    /**
-     * Adds a node to this tree.
-     *
-     * @param node the node to add.
-     */
-    void addNode(BaseNode node) {
-        register(node)
-        nodes.add(node)
-    }
-
-    /**
-     * Registers a node in this subtree.
-     *
-     * @param node the node to register.
-     */
-    protected void register(BaseNode node) {
-        if (node.identifier.id != null) {
-            idToNode.put(node.identifier.id, node)
-        }
-        if (node.identifier.name != null) {
-            nameToNode.get(node.identifier.name).add(node)
-        }
-
-        for (String className : node.identifier.classes) {
-            classesToNode.get(className).add(node)
-        }
     }
 
     /**
@@ -236,33 +154,9 @@ class JsonNodes implements Iterable<BaseNode> {
     JsonNodes filter(NodeFilter filter) {
         def result = new JsonNodes(this)
 
-        def rootFilter = new Predicate<BaseNode>() {
-            @Override
-            boolean apply(BaseNode input) {
-                return filter.apply(input)
-            }
+        for (BaseNode node : roots) {
+            collectFiltered(result.roots, node, filter.and(createExclusionFilter()))
         }
-
-
-        def descendantOfThis = new Predicate<BaseNode>() {
-            @Override
-            boolean apply(BaseNode input) {
-                for (BaseNode node : result.roots) {
-                    if (input.parents().contains(node)) {
-                        return true
-
-                    }
-                }
-                return false
-            }
-        }
-
-        result.roots = Sets.filter(this.nodes, rootFilter)
-        result.nodes = Sets.filter(this.nodes, descendantOfThis)
-
-        result.idToNode = Maps.filterValues(idToNode, descendantOfThis)
-        result.nameToNode = Multimaps.filterValues(nameToNode, descendantOfThis)
-        result.classesToNode = Multimaps.filterValues(classesToNode, descendantOfThis)
 
         return result
     }
@@ -294,7 +188,7 @@ class JsonNodes implements Iterable<BaseNode> {
     List<Tuple2<BaseNode, Integer>> closestTo(BaseNode node) {
         List<Tuple2<BaseNode, Integer>> distance = []
         for (BaseNode that : roots.findAll { it != node }) {
-            distance << new Tuple2<BaseNode, Integer>(that, node.commonAncestor(that))
+            distance << new Tuple2<BaseNode, Integer>(that, node.editDistance(that))
         }
         Collections.sort(distance, new Comparator<Tuple2<BaseNode, Integer>>() {
             @Override
@@ -314,19 +208,13 @@ class JsonNodes implements Iterable<BaseNode> {
         return distance.findAll { it.second == shortest }
     }
 
-    private int getRootCount() {
-        if (_rootCount == -1) {
-            _rootCount = Iterables.size(getRoots())
-        }
-        return Iterables.size(getRoots())
-    }
     /**
      * The number of roots in this subtree.
      *
      * @return the number of roots.
      */
     int getLength() {
-        rootCount
+        roots.size()
     }
     /**
      * The number of roots in this subtree.
@@ -334,16 +222,7 @@ class JsonNodes implements Iterable<BaseNode> {
      * @return the number of roots.
      */
     boolean isEmpty() {
-        return rootCount == 0
-    }
-
-    /**
-     * A optimization feature.
-     *
-     * @return if there is more than one root
-     */
-    boolean hasMoreThanOneRoot() {
-        return rootCount > 1
+        return roots.isEmpty()
     }
 
     /**
@@ -358,31 +237,45 @@ class JsonNodes implements Iterable<BaseNode> {
     }
 
     /**
-     * Checks the dirty state of the subtree.
+     * Recursively traverse the node and collect all nodes that pass the filter into the destination set.
+     *
+     * @param node the node to traverse.
      */
-    private void checkDirtyState() {
-        if (dirty) {
-            _rootCount = -1
-            dirty = false
+    private void collectFiltered(Set<BaseNode> destination, BaseNode node, NodeFilter filter) {
+        if (exclusions.contains(node)) {
+            return
+        }
+        if (node.array) {
+            def arrayNode = node as JsonArrayNode
+            int index = 0
+            for (BaseNode child : arrayNode.children) {
+                if (filter.apply(child, index)) {
+                    destination << child
+                }
+                index++
+                collectFiltered(destination, child, filter)
+            }
+        } else if (node.object) {
+            def objectNode = node as JsonObjectNode
+            for (BaseNode child : objectNode.children) {
+                if (filter.apply(child, null)) {
+                    destination << child
+                }
+                collectFiltered(destination, child, filter)
+            }
         }
     }
 
-    /**
-     * Called when the tree is changed.
-     */
-    void treeChanged() {
-        this.dirty = true
+
+    private NodeFilter createNameFilter(String name) {
+        NodeFilter exclusionFilter = createExclusionFilter()
+        def nameFilter = new NodeNameFilter(name)
+        def nodeFilter = nameFilter.and(exclusionFilter)
+        nodeFilter
     }
 
-    Set<BaseNode> getRoots() {
-        return roots
+    private NodeFilter createExclusionFilter() {
+        new InFilter(exclusions).not()
     }
 
-    Map<String, BaseNode> getIdToNode() {
-        return idToNode
-    }
-
-    Multimap<String, BaseNode> getNameToNode() {
-        return nameToNode
-    }
 }

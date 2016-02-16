@@ -1,6 +1,7 @@
 package dk.mehmedbasic.jsonast.transform
 
 import dk.mehmedbasic.jsonast.JsonDocument
+import groovy.transform.TypeChecked
 import org.codehaus.groovy.control.CompilerConfiguration
 
 /**
@@ -8,6 +9,7 @@ import org.codehaus.groovy.control.CompilerConfiguration
  *
  * The transformations themselves are delegated directly to {@link JsonDocument}.
  */
+@TypeChecked
 class VersionDefinition implements Comparable<VersionDefinition> {
     int versionNumber
     String comment
@@ -30,12 +32,10 @@ class VersionDefinition implements Comparable<VersionDefinition> {
         if (script) {
             script.setDelegate(delegate)
             script.run()
-            delegate.treeChanged()
         }
         if (closure) {
             closure.setDelegate(delegate)
             closure.run()
-            delegate.treeChanged()
         }
     }
 
@@ -60,7 +60,7 @@ class VersionDefinition implements Comparable<VersionDefinition> {
 
 
         def binding = new Binding()
-        GroovyShell shell = new GroovyShell(getClass().classLoader, binding, configuration);
+        GroovyShell shell = new GroovyShell(VersionDefinition.class.classLoader, binding, configuration);
 
         DelegatingScript delegatingScript = (DelegatingScript) shell.parse(string)
         if (delegate) {

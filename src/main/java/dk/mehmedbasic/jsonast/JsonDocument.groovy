@@ -1,88 +1,104 @@
 package dk.mehmedbasic.jsonast
 
-import dk.mehmedbasic.jsonast.conversion.JacksonConverter
-import org.codehaus.jackson.map.ObjectMapper
+import com.google.common.base.Charsets
+import dk.mehmedbasic.jsonast.conversion.BaseNodeParser
+import dk.mehmedbasic.jsonast.conversion.InlineIdsNamingStrategy
+import groovy.transform.CompileStatic
 
 /**
  * A json document.
+ *
+ * This is used as the base class for selection and transformation.
  */
-public class JsonDocument extends JsonNodes implements NodeChangedListener {
-    protected Set<BaseNode> nodes = new LinkedHashSet<>()
+@CompileStatic
+public class JsonDocument extends JsonNodes {
 
     JsonDocument() {
-        super(null)
         document = this
     }
 
-    @Override
-    void addNode(BaseNode node) {
-        super.addNode(node)
-        node.listener = this
-        nodes.add(node)
-    }
-
-    JsonValueNode createValueNode() {
+    /**
+     * Creates a value node.
+     *
+     * @return the node.
+     */
+    static JsonValueNode createValueNode() {
         def node = new JsonValueNode()
-        addNode(node)
         return node
     }
 
-    JsonArrayNode createArrayNode() {
-        def node = new JsonArrayNode()
-        addNode(node)
+    /**
+     * Creates a text node.
+     *
+     * @return the node.
+     */
+    static JsonValueNode createTextNode(String value) {
+        def node = new JsonValueNode()
+        node.setValue(value)
         return node
     }
 
-    JsonObjectNode createObjectNode() {
-        def node = new JsonObjectNode()
-        addNode(node)
+    /**
+     * Creates a number value node.
+     *
+     * @return the node.
+     */
+    static JsonValueNode createNumberNode(double value) {
+        def node = createValueNode()
+        node.setValue(value)
         return node
     }
 
+    /**
+     * Creates a boolean value node.
+     *
+     * @return the node.
+     */
+    static JsonValueNode createBooleanNode(boolean value) {
+        def node = createValueNode()
+        node.setValue(value)
+        return node
+    }
+
+    /**
+     * Creates an array node.
+     *
+     * @return the node.
+     */
+    static JsonArrayNode createArrayNode() {
+        return new JsonArrayNode()
+    }
+
+    /**
+     * Creates an object node.
+     *
+     * @return the node.
+     */
+    static JsonObjectNode createObjectNode() {
+        return new JsonObjectNode()
+    }
+
+    /**
+     * Parses a JsonDocument from the given input.
+     *
+     * @param inputStream the stream to parse.
+     *
+     * @return the resulting JsonDocument.
+     */
     static JsonDocument parse(InputStream inputStream) {
-        def mapper = new ObjectMapper()
-        def tree = mapper.readTree(inputStream)
-        return JacksonConverter.asTransformable(tree)
+        def parser = new BaseNodeParser(new InlineIdsNamingStrategy())
+        return parser.parse(inputStream)
     }
 
+    /**
+     * Parses a JsonDocument from the given input.
+     *
+     * @param content the string to parse.
+     *
+     * @return the resulting JsonDocument.
+     */
     static JsonDocument parse(String content) {
-        def mapper = new ObjectMapper()
-        def tree = mapper.readTree(content)
-        return JacksonConverter.asTransformable(tree)
-    }
-
-    @Override
-    void nodeChanged(NodeChangeEventType type, BaseNode node) {
-        if (type == NodeChangeEventType.NodeDeleted) {
-            privateRemove(node)
-        } else if (type == NodeChangeEventType.NodeAdded) {
-            privateAdd(node)
-        } else if (type == NodeChangeEventType.NodeChanged) {
-            privateRemove(node)
-            privateAdd(node)
-
-            node.cleanDirtyState()
-        }
-    }
-
-    private void privateAdd(BaseNode node) {
-        register(node)
-    }
-
-    private void privateRemove(BaseNode node) {
-        def id = node.identifier.id
-        if (id != null) {
-            idToNode.remove(id)
-        }
-        def name = node.identifier.name
-        if (name != null) {
-            nameToNode.get(name).remove(node)
-        }
-
-        for (String className : node.identifier.classes) {
-            classesToNode.get(className).remove(node)
-        }
-
-        nodes.remove(node)
+        def parser = new BaseNodeParser(new InlineIdsNamingStrategy())
+        return parser.parse(new ByteArrayInputStream(content.getBytes(Charsets.UTF_8)))
     }
 }
