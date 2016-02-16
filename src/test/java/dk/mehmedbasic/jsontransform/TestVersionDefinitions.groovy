@@ -75,10 +75,14 @@ class TestVersionDefinitions {
 
     @After
     void printOut() {
-        def node = JacksonConverter.asJacksonNode(document)
-        def string = new ObjectMapper().writer().writeValueAsString(node)
-        println(string)
-        println()
+        if (document.empty) {
+            println("Empty document")
+        } else {
+            def node = JacksonConverter.asJacksonNode(document)
+            def string = new ObjectMapper().writer().writeValueAsString(node)
+            println(string)
+            println()
+        }
     }
 
 }

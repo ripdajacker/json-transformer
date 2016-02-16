@@ -41,9 +41,7 @@ class JsonSelectionEngine {
             return roots.findByName(selector.localName)
         } else if (selector instanceof DescendantSelector) {
             def subtree = execute(selector.ancestorSelector, roots)
-
-            def result = execute(selector.simpleSelector, subtree)
-            return result
+            return execute(selector.simpleSelector, subtree)
         }
         return null
     }
@@ -66,22 +64,7 @@ class JsonSelectionEngine {
         return null;
     }
 
-    private static final class AndFilter implements NodeFilter {
-        NodeFilter left
-        NodeFilter right
-
-        AndFilter(NodeFilter left, NodeFilter right) {
-            this.left = left
-            this.right = right
-        }
-
-        @Override
-        boolean apply(BaseNode node) {
-            return left.apply(node) && right.apply(node)
-        }
-    }
-
-    private static class ClassConditionSelector implements NodeFilter {
+    private static class ClassConditionSelector extends NodeFilter {
         String className
 
         ClassConditionSelector(String className) {
@@ -89,7 +72,7 @@ class JsonSelectionEngine {
         }
 
         @Override
-        boolean apply(BaseNode node) {
+        boolean apply(BaseNode node, Integer index) {
             for (String thatName : node.identifier.classes) {
                 if (thatName.equals(className)) {
                     return true;
@@ -99,7 +82,7 @@ class JsonSelectionEngine {
         }
     }
 
-    private static class IdConditionSelector implements NodeFilter {
+    private static class IdConditionSelector extends NodeFilter {
         String id
 
         IdConditionSelector(String name) {
@@ -107,7 +90,7 @@ class JsonSelectionEngine {
         }
 
         @Override
-        boolean apply(BaseNode node) {
+        boolean apply(BaseNode node, Integer index) {
             if (!node.identifier.id) {
                 return false
             }
@@ -115,7 +98,7 @@ class JsonSelectionEngine {
         }
     }
 
-    private static class PropertyConditionSelector implements NodeFilter {
+    private static class PropertyConditionSelector extends NodeFilter {
 
         String propertyName
         String parameter
@@ -128,7 +111,7 @@ class JsonSelectionEngine {
         }
 
         @Override
-        boolean apply(BaseNode node) {
+        boolean apply(BaseNode node, Integer index) {
             if (node.object) {
                 def objectNode = node as JsonObjectNode
 

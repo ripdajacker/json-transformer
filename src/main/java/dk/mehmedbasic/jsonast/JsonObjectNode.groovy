@@ -1,52 +1,24 @@
 package dk.mehmedbasic.jsonast
 
-import groovy.transform.TypeChecked
+import groovy.transform.CompileStatic
 
 /**
  * A Json object node.
  */
-@TypeChecked
+@CompileStatic
 class JsonObjectNode extends BaseNode {
     LinkedList<BaseNode> children = new LinkedList<>()
 
-    private Map<String, BaseNode> nameToChildMap = new TreeMap<>()
-
-
-    void updateMap() {
-        nameToChildMap = null
-    }
-
-    private void initializeMap() {
-        if (nameToChildMap == null) {
-            nameToChildMap = new TreeMap<>()
-
-            for (BaseNode node : children) {
-                nameToChildMap.put(node.identifier.name, node)
-            }
-        }
-    }
-
     @Override
     BaseNode get(String name) {
-        initializeMap()
-        def node = nameToChildMap.get(name)
-        if (node) {
-            return node
-        }
-        null
+        children.find { it.identifier.name == name }
     }
 
     @Override
     void addChild(BaseNode node) {
-        addChildNoUpdate(node)
-        updateMap()
-    }
-
-    void addChildNoUpdate(BaseNode node) {
         super.addChild(node)
-        children.add(node)
+        children << node
     }
-
 
     @Override
     boolean isObject() {
@@ -68,13 +40,12 @@ class JsonObjectNode extends BaseNode {
             children.remove(node)
             super.removeNode(node)
             node.parent = null
-
-            nodeChanged(NodeChangeEventType.NodeChanged, this)
         }
     }
 
+
     @Override
-    void cleanDirtyState() {
-        updateMap()
+    public String toString() {
+        return "JsonObjectNode[$identifier]{$children}";
     }
 }

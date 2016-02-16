@@ -3,9 +3,6 @@ package dk.mehmedbasic.jsonast.conversion
 import dk.mehmedbasic.jsonast.BaseNode
 import dk.mehmedbasic.jsonast.JsonIdentifier
 import groovy.transform.TypeChecked
-import org.codehaus.jackson.node.ArrayNode
-import org.codehaus.jackson.node.ObjectNode
-import org.codehaus.jackson.node.ValueNode
 
 import java.util.regex.Pattern
 
@@ -22,7 +19,7 @@ class InlineIdsNamingStrategy implements ConversionNamingStrategy {
     }
 
     @Override
-    String toJackson(BaseNode node) {
+    String toJacksonName(BaseNode node) {
         if (node.identifier.id != null) {
             return "${node.identifier.name} #${node.identifier.id}"
         }
@@ -30,17 +27,7 @@ class InlineIdsNamingStrategy implements ConversionNamingStrategy {
     }
 
     @Override
-    JsonIdentifier toTransformable(String name, ObjectNode objectNode) {
-        return parseName(name)
-    }
-
-    @Override
-    JsonIdentifier toTransformable(String name, ArrayNode arrayNode) {
-        return parseName(name)
-    }
-
-    @Override
-    JsonIdentifier toTransformable(String name, ValueNode valueNode) {
+    JsonIdentifier toTransformableName(String name, BaseNode objectNode) {
         return parseName(name)
     }
 

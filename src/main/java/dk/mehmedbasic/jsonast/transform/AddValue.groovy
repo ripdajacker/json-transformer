@@ -44,7 +44,6 @@ final class AddValue implements TransformStrategy {
         for (BaseNode node : roots) {
             node.addChild(newChild)
         }
-        document.recursivelyAdd(newChild)
     }
 
     private BaseNode createNode(JsonDocument document) {

@@ -1,25 +1,21 @@
 package dk.mehmedbasic.jsonast
 
-import groovy.transform.TypeChecked
+import groovy.transform.CompileStatic
 
 /**
  * A small identifier class for aiding in CSS query calculation.
  */
-@TypeChecked
+@CompileStatic
 class JsonIdentifier {
     String name
     String id
-    Set<String> classes = []
+    Set<String> classes = new LinkedHashSet<>()
 
     JsonIdentifier() {
     }
 
     JsonIdentifier(String name) {
         this.name = name
-    }
-
-    String getName() {
-        return name
     }
 
     @Override

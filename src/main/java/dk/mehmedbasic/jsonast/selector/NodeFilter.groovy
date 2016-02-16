@@ -5,7 +5,7 @@ import dk.mehmedbasic.jsonast.BaseNode
 /**
  * A node filter that can filter a subtree.
  */
-interface NodeFilter {
+abstract class NodeFilter {
     /**
      * Whether or not the filter accepts the node.
      *
@@ -13,5 +13,13 @@ interface NodeFilter {
      *
      * @return true if accepted, false otherwise.
      */
-    boolean apply(BaseNode node)
+    abstract boolean apply(BaseNode node, Integer index)
+
+    NodeFilter and(NodeFilter that) {
+        return new AndFilter(this, that)
+    }
+
+    NodeFilter not() {
+        return new NotFilter(this)
+    }
 }

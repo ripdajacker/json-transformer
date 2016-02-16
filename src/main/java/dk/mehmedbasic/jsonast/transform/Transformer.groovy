@@ -118,7 +118,6 @@ final class Transformer {
             for (TransformStrategy function : functions) {
                 function.apply(destination.document, destination.select(selector))
             }
-            destination.treeChanged()
         }
 
         return destination
