@@ -4,6 +4,7 @@ import dk.mehmedbasic.jsonast.selector.InFilter
 import dk.mehmedbasic.jsonast.selector.JsonSelectionEngine
 import dk.mehmedbasic.jsonast.selector.NodeFilter
 import dk.mehmedbasic.jsonast.selector.NodeNameFilter
+import dk.mehmedbasic.jsonast.transform.CachingJsonNodes
 import dk.mehmedbasic.jsonast.transform.Transformer
 import groovy.transform.CompileStatic
 
@@ -241,7 +242,7 @@ class JsonNodes implements Iterable<BaseNode> {
      *
      * @param node the node to traverse.
      */
-    private void collectFiltered(Set<BaseNode> destination, BaseNode node, NodeFilter filter) {
+    protected void collectFiltered(Set<BaseNode> destination, BaseNode node, NodeFilter filter) {
         if (exclusions.contains(node)) {
             return
         }
@@ -276,6 +277,17 @@ class JsonNodes implements Iterable<BaseNode> {
 
     private NodeFilter createExclusionFilter() {
         new InFilter(exclusions).not()
+    }
+
+    /**
+     * Returns a new JsonNodes instance that has caching enabled.
+     *
+     * @return the cached nodes.
+     */
+    CachingJsonNodes withCaching() {
+        def nodes = new CachingJsonNodes()
+        nodes.roots = new LinkedHashSet<>(roots)
+        return nodes
     }
 
 }

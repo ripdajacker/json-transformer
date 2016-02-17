@@ -13,7 +13,7 @@ import groovy.util.logging.Slf4j
 @Slf4j
 @PackageScope
 @CompileStatic
-final class Mover implements TransformStrategy {
+final class Mover extends TransformStrategy {
     final String selector
 
     Mover(String selector) {
@@ -22,7 +22,7 @@ final class Mover implements TransformStrategy {
 
     @Override
     void apply(JsonDocument document, JsonNodes root) {
-        def queryRoot = document.select(null)
+        def queryRoot = document.select(null).withCaching()
 
         List<Tuple2<BaseNode, BaseNode>> changes = []
 

@@ -11,7 +11,7 @@ import groovy.transform.TypeChecked
  */
 @TypeChecked
 @PackageScope
-final class Renamer implements TransformStrategy {
+final class Renamer extends TransformStrategy {
     final String to
     final String from
 
@@ -26,12 +26,17 @@ final class Renamer implements TransformStrategy {
 
     @Override
     void apply(JsonDocument document, JsonNodes root) {
-        for (BaseNode node : root.roots) {
+        def roots = new LinkedHashSet<BaseNode>(root.roots)
+        for (BaseNode node : roots) {
             if (from) {
                 node.renameNode(from, to)
+                nodeChanged(root, node)
             } else {
                 node.parent?.renameNode(node, to)
+                nodeChanged(root, node)
             }
         }
     }
+
+
 }
