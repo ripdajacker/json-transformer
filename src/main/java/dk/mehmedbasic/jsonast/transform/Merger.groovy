@@ -9,7 +9,7 @@ import groovy.util.logging.Slf4j
  */
 @PackageScope
 @Slf4j
-final class Merger implements TransformStrategy {
+final class Merger extends TransformStrategy {
     final String selector
     MergeValueFunction function
 
@@ -19,11 +19,9 @@ final class Merger implements TransformStrategy {
     }
 
     public void apply(JsonDocument document, JsonNodes root) {
-        def queryRoot = document.select(null)
+        def queryRoot = document.select(null).withCaching()
 
-        List<Closure> changes = []
-
-        log.info("Attempting merge of ${root.size()} elements")
+        log.debug("Attempting merge of ${root.size()} elements")
         for (BaseNode source : root.roots) {
             queryRoot.exclusions.clear()
             queryRoot.addExclusion(source)
@@ -32,13 +30,13 @@ final class Merger implements TransformStrategy {
 
             BaseNode destination = null
             if (newDestinations.isEmpty()) {
-                log.warn("Found zero potential destinations for ($source, $selector)")
+                log.debug("Found zero potential destinations for ($source, $selector)")
             } else if (newDestinations.size() > 1) {
                 def closest = newDestinations.closestTo(source)
                 if (closest.size() == 0) {
-                    log.warn("Found ambiguous destinations for ($source, $selector)")
+                    log.debug("Found ambiguous destinations for ($source, $selector)")
                 } else if (closest.size() > 1) {
-                    log.warn("Found more than one potential destination for ($source, $selector)")
+                    log.debug("Found more than one potential destination for ($source, $selector)")
                 } else {
                     destination = closest.first().first
                 }
@@ -65,6 +63,9 @@ final class Merger implements TransformStrategy {
                         } else if (source.isValueNode()) {
                             function.apply(source as JsonValueNode, valueNode)
                         }
+
+                        queryRoot.nodeChanged(source)
+                        queryRoot.nodeChanged(destination)
                     }
                 }
             }

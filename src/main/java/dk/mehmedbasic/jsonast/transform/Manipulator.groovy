@@ -12,7 +12,7 @@ import groovy.transform.TypeChecked
  */
 @TypeChecked
 @PackageScope
-final class Manipulator implements TransformStrategy {
+final class Manipulator extends TransformStrategy {
     ManipulateValueFunction function
     Closure closure
 

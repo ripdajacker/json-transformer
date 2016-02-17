@@ -9,7 +9,7 @@ import groovy.transform.TypeChecked
  * Deletes child nodes
  */
 @TypeChecked
-final class Deleter implements TransformStrategy {
+final class Deleter extends TransformStrategy {
     String name
     int index = -1
 
@@ -24,15 +24,19 @@ final class Deleter implements TransformStrategy {
     @Override
     void apply(JsonDocument document, JsonNodes root) {
         if (name) {
-            def nodes = new ArrayList<BaseNode>(root.roots)
+            def nodes = new LinkedHashSet<BaseNode>(root.roots)
             for (BaseNode node : nodes) {
-                node.removeNode(name)
+                def get = node.get(name)
+                nodeChanged(root, get)
+                node.removeNode(get)
             }
         } else if (index >= 0) {
             def nodes = new ArrayList<BaseNode>(root.roots)
             for (BaseNode node : nodes) {
                 if (node.isObject() || node.isArray()) {
-                    node.removeNode(index)
+                    def get = node.get(index)
+                    nodeChanged(root, get)
+                    node.removeNode(get)
                 }
             }
         }

@@ -7,7 +7,7 @@ import groovy.transform.PackageScope
  * Adds a value
  */
 @PackageScope
-final class AddValue implements TransformStrategy {
+final class AddValue extends TransformStrategy {
     private JsonType type = JsonType.Value
     private Object value
     private String name
@@ -22,7 +22,7 @@ final class AddValue implements TransformStrategy {
 
     @Override
     void apply(JsonDocument document, JsonNodes root) {
-        def newChild = null
+        BaseNode newChild
         if (value instanceof BaseNode) {
             // Verbatim addition
             newChild = value as BaseNode
@@ -40,9 +40,12 @@ final class AddValue implements TransformStrategy {
         }
 
 
-        def roots = root.roots.asList()
+        def roots = new LinkedHashSet<BaseNode>(root.roots)
         for (BaseNode node : roots) {
             node.addChild(newChild)
+
+            nodeChanged(root, node)
+            nodeChanged(root, newChild)
         }
     }
 
