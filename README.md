@@ -1,9 +1,21 @@
 # json-transformer
+This small project is an attempt to reduce the complexity of maintaining multiple versions of JSON documents.
 
+It includes following:
 
-This small project is an attempt to reduce the complexity of having multiple versions of JSON documents.
+* A CSS-based query language for querying JSON nodes.
+* A mutable AST for transforming documents based on queries.
+* A Groovy-based DSL for writing transformations.
 
-This is part of my masters thesis and is a work in progress and the README will be updated with new examples as they are finished.
+A list of transformations supported:
+
+* Add a JSON value to a node.
+* Rename a JSON key.
+* Delete a node from the tree.
+* Move a JSON key/value pair up or sideways in the tree
+* Merge a JSON node with another node.
+* Partition a JSON node into more nodes.
+ 
 
 ## Crash course
 
@@ -14,7 +26,7 @@ Given a JSON document:
     "destination": {
         "value": 42
     },
-    "subtree": {
+    "subtree": {       
         "source": "Jon Snow dies in Season 5",
         "foo": "bar",
         "baz": "botch",
@@ -23,12 +35,52 @@ Given a JSON document:
 }
 ```
 
-Implementing a CSS-like query language with a builder one can write:
+### Selectors
+You can select all nodes with the name `stop` by writing:
+
+```groovy
+document.select("stop")
+```
+
+The result will be an instance of `JsonNodes`, that has a reference to all the matching nodes.
+
+You can write some more complex selectors:
+
+```groovy
+document.select("subtree source")
+```
+
+Following selectors are supported:
+
+* `name` gets all nodes matching the name.
+* `.class` gets all the nodes that have a child `@class` with a value (or array containing) the classname.
+* `#id" gets all the nodes that have a child `@id` with the value `id`.
+
+Combinations of selectors are supported:
+
+* `ancestorSelector selector` gets all nodes matching `selector` that also have a ancestor matching `ancestorSelector`.
+* `parentSelector > selector` gets all nodes matching `selector` that have a parent matching `parentSelector`.
+* `selector[keyName^=Prefix]` gets all nodes matching  `selector` that also have a child named `keyName` whose value starts with `Prefix`. 
+ 
+ 
+### Some transformations 
+
+
+Using the DSL one can write:
 
 ```groovy
 document.transform("source")
     .moveTo("destination")
     .apply()
+    
+document.transform("stop")
+    .renameTo("we love")
+    .apply()
+    
+document.transform("subree")
+    .deleteChild("foo")
+    .deleteChild("baz")
+    .apply()      
 ```
 
 The resulting JSON will be:
@@ -40,39 +92,11 @@ The resulting JSON will be:
         "value": 42
     },
     "subtree": {
-        "foo": "bar",
-        "baz": "botch",
-        "stop": "the shitty examples"
+        "we love": "the shitty examples"
     }
 }
 ```
 
-## Sufficiently complicated examples
-
-### Renaming a node
-
-The following code renames a node.
-
-```groovy
-document.transform("source")
-    .renameTo("awesome_renaming")
-    .apply()
-```
-
-The resulting JSON:
-```json
-{
-    "destination": {
-        "value": 42
-    },
-    "subtree": {
-        "awesome_renaming": "Jon Snow dies in Season 5",
-        "foo": "bar",
-        "baz": "botch",
-        "stop": "the shitty examples"
-    }
-}
-```
 
 ### Partitioning a subtree
 The partition function splits a node into one or more sibling nodes.
@@ -101,12 +125,27 @@ The resulting JSON:
 }
 ```
 
+## Transformations in a method
+
+You will need a `JsonDocument` instance.
+  
+This can be created either by parsing the file with the included `BaseNodeParser` or by using the `JacksonConverter` 
+class to convert a Jackson-based JSON tree.  
+
+The `JsonDocument` class has a method for helping out with this:
+
+```groovy
+def document = JsonDocument.parse(some_input_stream)
+
+document.transform(...) // Ready for transformation
+```
 
 ## Defining transformations as Groovy scripts
 
 It's possible to define transformation as `.groovy` files.
 
 The syntax is as follows:
+
 ```groovy
 version 1
 comment "Renames the 'name' property to 'billy' and adds a dog named bingo."
