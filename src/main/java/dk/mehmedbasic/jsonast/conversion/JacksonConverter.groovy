@@ -142,6 +142,8 @@ class JacksonConverter {
                     result.identifier.classes << "sysclass_version"
                 }
 
+                result.identifier.classes.add("value")
+
                 if (source.boolean) {
                     result.identifier.classes.add("boolean")
                     result.setValue(source.booleanValue)

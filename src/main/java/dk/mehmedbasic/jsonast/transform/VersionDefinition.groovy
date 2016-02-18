@@ -23,7 +23,12 @@ class VersionDefinition implements Comparable<VersionDefinition> {
         this.script = createScript(null, definition)
     }
 
-    /**
+    VersionDefinition(int versionNumber, String comment, Closure closure) {
+        this.versionNumber = versionNumber
+        this.comment = comment
+        this.closure = closure
+    }
+/**
      * Executes the transformations described by this definition.
      *
      * @param delegate the document to execute the transformations on.

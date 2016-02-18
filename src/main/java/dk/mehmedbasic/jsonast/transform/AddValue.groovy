@@ -1,6 +1,9 @@
 package dk.mehmedbasic.jsonast.transform
 
-import dk.mehmedbasic.jsonast.*
+import dk.mehmedbasic.jsonast.BaseNode
+import dk.mehmedbasic.jsonast.JsonDocument
+import dk.mehmedbasic.jsonast.JsonNodes
+import dk.mehmedbasic.jsonast.JsonType
 import groovy.transform.PackageScope
 
 /**
@@ -32,9 +35,11 @@ final class AddValue extends TransformStrategy {
             newChild.identifier.name = name
             if (value) {
                 if (newChild.array) {
-                    newChild.addChild(new JsonValueNode(value))
+                    def valueNode = JsonDocument.createValueNode()
+                    valueNode.value = value
+                    newChild.addChild(valueNode)
                 } else if (newChild.valueNode) {
-                    newChild.setValue(value)
+                    newChild.value = value
                 }
             }
         }

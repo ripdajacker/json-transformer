@@ -114,30 +114,6 @@ abstract class BaseNode {
     }
 
     /**
-     * Removes a node given a name.
-     *
-     * @param name the name of the node.
-     */
-    void removeNode(String name) {
-        BaseNode node = get(name)
-        if (node) {
-            removeNode(node)
-        }
-    }
-
-    /**
-     * Removes a node given an index.
-     *
-     * @param index the index of the node.
-     */
-    void removeNode(int index) {
-        BaseNode node = get(index)
-        if (node) {
-            removeNode(node)
-        }
-    }
-
-    /**
      * Renames a node.
      *
      * @param node the node to rename.
@@ -203,5 +179,24 @@ abstract class BaseNode {
         thisParents.retainAll(thatParents)
 
         previousSize - thisParents.size()
+    }
+
+    static void appendClasses(BaseNode source) {
+        if (source.object) {
+            source.identifier.classes.add("object")
+        } else if (source.array) {
+            source.identifier.classes.add("array")
+        } else {
+            source.identifier.classes.add("value")
+            if (source.boolean) {
+                source.identifier.classes.add("boolean")
+            } else if (source.int) {
+                source.identifier.classes.add("int")
+            } else if (source.string) {
+                source.identifier.classes.add("string")
+            } else if (source.double) {
+                source.identifier.classes.add("double")
+            }
+        }
     }
 }

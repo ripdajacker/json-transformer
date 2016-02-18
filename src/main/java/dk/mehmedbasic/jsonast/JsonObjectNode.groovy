@@ -9,6 +9,9 @@ import groovy.transform.CompileStatic
 class JsonObjectNode extends BaseNode {
     LinkedList<BaseNode> children = new LinkedList<>()
 
+    JsonObjectNode() {
+    }
+
     @Override
     BaseNode get(String name) {
         children.find { it.identifier.name == name }

@@ -24,6 +24,7 @@ public class JsonDocument extends JsonNodes {
      */
     static JsonValueNode createValueNode() {
         def node = new JsonValueNode()
+        node.identifier.classes << "value"
         return node
     }
 
@@ -33,7 +34,8 @@ public class JsonDocument extends JsonNodes {
      * @return the node.
      */
     static JsonValueNode createTextNode(String value) {
-        def node = new JsonValueNode()
+        def node = createValueNode()
+        node.identifier.classes << "string"
         node.value = value
         return node
     }
@@ -45,6 +47,7 @@ public class JsonDocument extends JsonNodes {
      */
     static JsonValueNode createNumberNode(double value) {
         def node = createValueNode()
+        node.identifier.classes << "double"
         node.setValue(value)
         return node
     }
@@ -57,6 +60,7 @@ public class JsonDocument extends JsonNodes {
     static JsonValueNode createBooleanNode(boolean value) {
         def node = createValueNode()
         node.setValue(value)
+        node.identifier.classes << "boolean"
         return node
     }
 
@@ -66,7 +70,9 @@ public class JsonDocument extends JsonNodes {
      * @return the node.
      */
     static JsonArrayNode createArrayNode() {
-        return new JsonArrayNode()
+        def node = new JsonArrayNode()
+        node.identifier.classes << "array"
+        return node
     }
 
     /**
@@ -75,7 +81,9 @@ public class JsonDocument extends JsonNodes {
      * @return the node.
      */
     static JsonObjectNode createObjectNode() {
-        return new JsonObjectNode()
+        def node = new JsonObjectNode()
+        node.identifier.classes << "object"
+        return node
     }
 
     /**
