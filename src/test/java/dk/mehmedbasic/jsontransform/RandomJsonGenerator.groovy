@@ -43,7 +43,7 @@ class RandomJsonGenerator {
     }
 
     public static void main(String[] args) {
-        generate(new File("src/main/resources/large_files/file__million.json"), 2, 10, 7)
+        generate(new File("src/main/resources/large_files/file_22_million.json"), 2, 10, 7)
         println("Count: $count")
     }
 }

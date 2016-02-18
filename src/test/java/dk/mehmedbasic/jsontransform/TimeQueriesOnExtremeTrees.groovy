@@ -21,7 +21,7 @@ class TimeQueriesOnExtremeTrees {
 
         JsonNode tree = null
         TaskTimer.timeTaken("Reading tree") {
-            tree = mapper.readTree(new FileInputStream(new File("src/main/resources/large_files/file_1_million.json")))
+            tree = mapper.readTree(new FileInputStream(new File("src/main/resources/file_1_million.json")))
         }
 
         TaskTimer.timeTaken("Converted to transformable tree") {
