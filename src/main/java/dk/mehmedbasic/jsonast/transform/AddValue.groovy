@@ -57,7 +57,8 @@ final class AddValue extends TransformStrategy {
                 return document.createObjectNode()
             case JsonType.Value:
                 return document.createValueNode()
+            default:
+                return null
         }
-        return null
     }
 }

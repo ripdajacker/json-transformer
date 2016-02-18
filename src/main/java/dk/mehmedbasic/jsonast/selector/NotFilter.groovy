@@ -5,7 +5,7 @@ import groovy.transform.PackageScope
 import groovy.transform.TypeChecked
 
 /**
- * TODO - someone remind me to document this class 
+ * A not filter
  */
 @TypeChecked
 @PackageScope

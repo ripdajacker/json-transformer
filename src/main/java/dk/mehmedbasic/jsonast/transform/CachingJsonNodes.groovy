@@ -46,7 +46,8 @@ class CachingJsonNodes extends JsonNodes {
         for (String key : classKeys) {
             classToNode.get(key).remove(node)
         }
-        def keysToRemove = []
+
+        List<String> keysToRemove = []
         for (Map.Entry<String, BaseNode> entry : idToNode.entrySet()) {
             if (entry.value == node) {
                 keysToRemove << entry.key
@@ -75,7 +76,7 @@ class CachingJsonNodes extends JsonNodes {
         }
 
         if (identifier.id != null) {
-            idToNode.put(identifier.id, node)
+            idToNode[identifier.id] = node
         }
     }
 

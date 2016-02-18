@@ -53,13 +53,13 @@ final class Manipulator extends TransformStrategy {
     }
 
     private void applyClosure(BaseNode node) {
-        if (node.isValueNode()) {
+        if (node.valueNode) {
             closure.call(node as JsonValueNode)
         }
     }
 
     private void applyFunction(BaseNode node) {
-        if (node.isValueNode()) {
+        if (node.valueNode) {
             function.apply(node as JsonValueNode)
         }
     }

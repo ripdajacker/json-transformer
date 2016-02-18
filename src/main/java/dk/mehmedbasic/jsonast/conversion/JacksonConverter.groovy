@@ -58,38 +58,38 @@ class JacksonConverter {
 
 
         private JsonNode convertToJackson(BaseNode baseNode) {
-            if (baseNode.isArray()) {
+            if (baseNode.array) {
                 def result = new ArrayNode(JsonNodeFactory.instance)
                 JsonArrayNode arrayNode = baseNode as JsonArrayNode
                 for (BaseNode childNode : arrayNode.children) {
                     def jackson = convertToJackson(childNode)
                     if (jackson instanceof ObjectNode) {
                         for (Tuple2<String, String> pair : strategy.toJacksonInArray(childNode)) {
-                            jackson.put(pair.getFirst(), pair.getSecond())
+                            jackson.put(pair.first, pair.second)
                         }
                     }
                     result.add(jackson)
                 }
                 return result
             }
-            if (baseNode.isValueNode()) {
+            if (baseNode.valueNode) {
                 JsonValueNode valueNode = baseNode as JsonValueNode
-                if (baseNode.isInt()) {
+                if (baseNode.int) {
                     return new IntNode(valueNode.intValue())
-                } else if (baseNode.isDouble()) {
+                } else if (baseNode.double) {
                     return new DoubleNode(valueNode.doubleValue())
-                } else if (baseNode.isBoolean()) {
+                } else if (baseNode.boolean) {
                     if (valueNode.booleanValue()) {
                         return BooleanNode.TRUE
                     } else {
                         return BooleanNode.FALSE
                     }
-                } else if (baseNode.isString()) {
+                } else if (baseNode.string) {
                     return new TextNode(valueNode.stringValue())
                 }
                 return NullNode.instance
             }
-            if (baseNode.isObject()) {
+            if (baseNode.object) {
                 def result = new ObjectNode(JsonNodeFactory.instance)
                 def objectNode = baseNode as JsonObjectNode
 
@@ -110,7 +110,7 @@ class JacksonConverter {
          * @return the converted node.
          */
         private BaseNode convertToTransformable(String name, JsonNode source) {
-            if (source.isObject()) {
+            if (source.object) {
                 def result = new JsonObjectNode()
                 def objectNode = source as ObjectNode
 
@@ -123,7 +123,7 @@ class JacksonConverter {
                     result.addChild(convertToTransformable(entry.key, entry.value))
                 }
                 return result
-            } else if (source.isArray()) {
+            } else if (source.array) {
                 def result = new JsonArrayNode()
                 def arrayNode = source as ArrayNode
 
@@ -135,23 +135,23 @@ class JacksonConverter {
                     result.addChild(convertToTransformable(null, node))
                 }
                 return result
-            } else if (source.isValueNode()) {
+            } else if (source.valueNode) {
                 def result = new JsonValueNode()
                 result.identifier = strategy.toTransformableName(name, result)
                 if (name == "@version") {
                     result.identifier.classes << "sysclass_version"
                 }
 
-                if (source.isBoolean()) {
+                if (source.boolean) {
                     result.identifier.classes.add("boolean")
                     result.setValue(source.booleanValue)
-                } else if (source.isInt()) {
+                } else if (source.int) {
                     result.identifier.classes.add("int")
                     result.setValue(source.intValue)
-                } else if (source.isTextual()) {
+                } else if (source.textual) {
                     result.identifier.classes.add("string")
-                    result.setValue(source.textValue)
-                } else if (source.isDouble()) {
+                    result.value = source.textValue
+                } else if (source.double) {
                     result.identifier.classes.add("double")
                     result.setValue(source.doubleValue)
                 }

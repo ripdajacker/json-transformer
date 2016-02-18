@@ -39,7 +39,7 @@ class JsonNodes implements Iterable<BaseNode> {
      * @return a subtree containing the selected nodes.
      */
     JsonNodes select(String selector) {
-        if (selector == null || selector.trim().isEmpty()) {
+        if (selector == null || selector.trim().empty) {
             def nodes = new JsonNodes(this)
             nodes.roots = new LinkedHashSet<>(roots)
             return nodes;
@@ -56,7 +56,7 @@ class JsonNodes implements Iterable<BaseNode> {
      */
     Optional<BaseNode> selectSingle(String selector) {
         def result = select(selector)
-        if (result.isEmpty()) {
+        if (result.empty) {
             return Optional.empty()
         }
         return Optional.of(result.roots[0])
@@ -223,7 +223,7 @@ class JsonNodes implements Iterable<BaseNode> {
      * @return the number of roots.
      */
     boolean isEmpty() {
-        return roots.isEmpty()
+        return roots.empty
     }
 
     /**

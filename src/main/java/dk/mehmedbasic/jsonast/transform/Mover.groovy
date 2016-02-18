@@ -48,7 +48,7 @@ final class Mover extends TransformStrategy {
                     destination = closest.first().first
                 }
             } else {
-                destination = newDestinations.getRoots().iterator().next()
+                destination = newDestinations.roots.iterator().next()
             }
 
             if (destination != null) {

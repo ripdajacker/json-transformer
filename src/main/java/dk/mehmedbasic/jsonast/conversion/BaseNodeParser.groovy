@@ -44,7 +44,7 @@ class BaseNodeParser {
          * This occurs before first read from JsonParser, as well as
          * after clearing of current token.
          */
-        JsonToken t = jp.getCurrentToken();
+        JsonToken t = jp.currentToken;
         if (t == null) {
             // and then we must get something...
             t = jp.nextToken();
@@ -60,12 +60,12 @@ class BaseNodeParser {
 
     private final JsonObjectNode deserializeObject(JsonParser parser) throws IOException, JsonProcessingException {
         JsonObjectNode node = JsonDocument.createObjectNode();
-        JsonToken token = parser.getCurrentToken();
+        JsonToken token = parser.currentToken;
         if (token == JsonToken.START_OBJECT) {
             token = parser.nextToken();
         }
         for (; token == JsonToken.FIELD_NAME; token = parser.nextToken()) {
-            String fieldName = parser.getCurrentName();
+            String fieldName = parser.currentName;
             parser.nextToken();
             BaseNode value = deserializeAny(parser);
             value.identifier = strategy.toTransformableName(fieldName, node)
@@ -86,7 +86,7 @@ class BaseNodeParser {
 
     private final BaseNode deserializeAny(JsonParser parser)
             throws IOException, JsonProcessingException {
-        switch (parser.getCurrentToken()) {
+        switch (parser.currentToken) {
             case JsonToken.START_OBJECT:
             case JsonToken.FIELD_NAME:
                 return deserializeObject(parser);
@@ -95,20 +95,20 @@ class BaseNodeParser {
                 return deserializeArray(parser);
 
             case JsonToken.VALUE_STRING:
-                return JsonDocument.createTextNode(parser.getText())
+                return JsonDocument.createTextNode(parser.text)
             case JsonToken.VALUE_NUMBER_INT:
 
                 def node = JsonDocument.createValueNode()
-                JsonParser.NumberType nt = parser.getNumberType();
+                JsonParser.NumberType nt = parser.numberType;
                 if (nt == JsonParser.NumberType.INT) {
-                    node.setValue(parser.getIntValue() as int)
+                    node.setValue(parser.intValue as int)
                 } else {
-                    node.setValue(parser.getLongValue() as long)
+                    node.setValue(parser.longValue as long)
                 }
                 return node
 
             case JsonToken.VALUE_NUMBER_FLOAT:
-                return JsonDocument.createNumberNode(parser.getDoubleValue());
+                return JsonDocument.createNumberNode(parser.doubleValue);
             case JsonToken.VALUE_TRUE:
                 return JsonDocument.createBooleanNode(true);
 

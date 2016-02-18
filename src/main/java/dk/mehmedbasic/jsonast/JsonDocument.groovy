@@ -34,7 +34,7 @@ public class JsonDocument extends JsonNodes {
      */
     static JsonValueNode createTextNode(String value) {
         def node = new JsonValueNode()
-        node.setValue(value)
+        node.value = value
         return node
     }
 

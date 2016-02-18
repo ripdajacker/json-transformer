@@ -7,7 +7,9 @@ import org.codehaus.jackson.map.ObjectMapper
  * Generates random json
  */
 class RandomJsonGenerator {
+    private
     static List<String> names = ["node", "cake", "john", "fun", "horse", "hancock", "foobar", "stein", "lol", "portapotty", "askepot"]
+    private static long count = 0
 
     static void generate(File output, int roots, int children, int levels) {
         println("generating ${Math.pow(children, levels) * roots} nodes")
@@ -24,7 +26,6 @@ class RandomJsonGenerator {
         generator.close()
     }
 
-    static long count = 0
 
     static void generateChild(JsonGenerator generator, int currentLevel, int children, int levels) {
         if (currentLevel >= levels) {

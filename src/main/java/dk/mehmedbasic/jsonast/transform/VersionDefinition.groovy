@@ -30,11 +30,11 @@ class VersionDefinition implements Comparable<VersionDefinition> {
      */
     void execute(JsonDocument delegate) {
         if (script) {
-            script.setDelegate(delegate)
+            script.delegate = delegate
             script.run()
         }
         if (closure) {
-            closure.setDelegate(delegate)
+            closure.delegate = delegate
             closure.run()
         }
     }
@@ -56,7 +56,7 @@ class VersionDefinition implements Comparable<VersionDefinition> {
 
     private static DelegatingScript createScript(Object delegate, String string) {
         CompilerConfiguration configuration = new CompilerConfiguration();
-        configuration.setScriptBaseClass(DelegatingScript.class.name);
+        configuration.scriptBaseClass = DelegatingScript.class.name;
 
 
         def binding = new Binding()
@@ -64,7 +64,7 @@ class VersionDefinition implements Comparable<VersionDefinition> {
 
         DelegatingScript delegatingScript = (DelegatingScript) shell.parse(string)
         if (delegate) {
-            delegatingScript.setDelegate(delegate)
+            delegatingScript.delegate = delegate
         }
 
         delegatingScript

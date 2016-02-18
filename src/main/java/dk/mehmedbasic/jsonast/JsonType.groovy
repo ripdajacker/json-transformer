@@ -7,13 +7,13 @@ enum JsonType {
     Value, Array, Object
 
     static JsonType fromNode(BaseNode node) {
-        if (node.isArray()) {
+        if (node.array) {
             return Array
         }
-        if (node.isObject()) {
+        if (node.object) {
             return Object
         }
-        if (node.isValueNode()) {
+        if (node.valueNode) {
             return Value
         }
         return null

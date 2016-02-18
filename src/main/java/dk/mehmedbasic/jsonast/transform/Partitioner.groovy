@@ -15,7 +15,7 @@ final class Partitioner extends TransformStrategy {
     Partitioner(List<List<String>> partitionKeys) {
         for (List<String> keys : partitionKeys) {
             if (keys.size() >= 2) {
-                def tuple = new Tuple2<>(keys.get(0), keys.tail())
+                def tuple = new Tuple2<>(keys[0], keys.tail())
                 this.partitionKeys.add(tuple)
             }
         }
@@ -28,29 +28,27 @@ final class Partitioner extends TransformStrategy {
         for (BaseNode source : nodes) {
             for (Tuple2<String, List<String>> partition : partitionKeys) {
                 def keys = partition.second
-                if (source.isObject()) {
-                    if (source.parent) {
-                        def destination = document.createObjectNode()
-                        def newKey = partition.first
-                        destination.identifier.name = newKey
-                        destination.identifier.classes << "sysclass_partitioned"
+                if (source.object && source.parent != null) {
+                    def destination = document.createObjectNode()
+                    def newKey = partition.first
+                    destination.identifier.name = newKey
+                    destination.identifier.classes << "sysclass_partitioned"
 
-                        source.parent.addChild(destination)
+                    source.parent.addChild(destination)
 
-                        for (String key : keys) {
-                            BaseNode node = source.get(key)
-                            if (!node) {
-                                throw new IllegalArgumentException("The given node was not found $key")
-                            }
-                            source.removeNode(node as BaseNode)
-
-                            destination.addChild(node)
-
-                            nodeChanged(root, source)
-                            nodeChanged(root, destination)
-                            nodeChanged(root, node)
-
+                    for (String key : keys) {
+                        BaseNode node = source.get(key)
+                        if (!node) {
+                            throw new IllegalArgumentException("The given node was not found $key")
                         }
+                        source.removeNode(node as BaseNode)
+
+                        destination.addChild(node)
+
+                        nodeChanged(root, source)
+                        nodeChanged(root, destination)
+                        nodeChanged(root, node)
+
                     }
                 }
             }
