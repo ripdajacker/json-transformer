@@ -28,13 +28,14 @@ class VersionDefinition implements Comparable<VersionDefinition> {
      *
      * @param delegate the document to execute the transformations on.
      */
+    @SuppressWarnings("JavaStylePropertiesInvocation")
     void execute(JsonDocument delegate) {
-        if (script) {
-            script.delegate = delegate
+        if (script != null) {
+            script.setDelegate(delegate)
             script.run()
         }
         if (closure) {
-            closure.delegate = delegate
+            closure.setDelegate(delegate)
             closure.run()
         }
     }
@@ -54,6 +55,7 @@ class VersionDefinition implements Comparable<VersionDefinition> {
         return definition
     }
 
+    @SuppressWarnings("JavaStylePropertiesInvocation")
     private static DelegatingScript createScript(Object delegate, String string) {
         CompilerConfiguration configuration = new CompilerConfiguration();
         configuration.scriptBaseClass = DelegatingScript.class.name;
@@ -64,7 +66,7 @@ class VersionDefinition implements Comparable<VersionDefinition> {
 
         DelegatingScript delegatingScript = (DelegatingScript) shell.parse(string)
         if (delegate) {
-            delegatingScript.delegate = delegate
+            delegatingScript.setDelegate(delegate)
         }
 
         delegatingScript

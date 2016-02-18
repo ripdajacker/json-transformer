@@ -15,13 +15,13 @@ import org.junit.Test
 class TestBaseNodeParser {
     @Test
     void ownParserTestOneMillion() {
-        ownParserRun("src/main/resources/large_files/file_1_million.json", 20)
+        ownParserRun("src/main/resources/file_1_million.json", 20)
     }
 
 
     @Test
     void jacksonAndConverterOneMillion() {
-        def file = "src/main/resources/large_files/file_1_million.json"
+        def file = "src/main/resources/file_1_million.json"
 
         JsonNode tree = readTree(file)
         convertJackson(tree, 20)
