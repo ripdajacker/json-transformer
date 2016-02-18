@@ -54,7 +54,7 @@ Following selectors are supported:
 
 * `name` gets all nodes matching the name.
 * `.class` gets all the nodes that have a child `@class` with a value (or array containing) the classname.
-* `#id" gets all the nodes that have a child `@id` with the value `id`.
+* `#id` gets all the nodes that have a child `@id` with the value `id`.
 
 Combinations of selectors are supported:
 
