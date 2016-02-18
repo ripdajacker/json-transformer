@@ -15,10 +15,22 @@ abstract class NodeFilter {
      */
     abstract boolean apply(BaseNode node, Integer index)
 
+    /**
+     * Ands the filter with the given filter.
+     *
+     * @param that the filter.
+     *
+     * @return a and filter of this and that.
+     */
     NodeFilter and(NodeFilter that) {
         return new AndFilter(this, that)
     }
 
+    /**
+     * Creates a not filter of this.
+     *
+     * @return the not filter.
+     */
     NodeFilter not() {
         return new NotFilter(this)
     }

@@ -1,6 +1,5 @@
 package dk.mehmedbasic.jsontransform
 
-import dk.mehmedbasic.jsonast.JsonDocument
 import dk.mehmedbasic.jsonast.conversion.BaseNodeParser
 import dk.mehmedbasic.jsonast.conversion.InlineIdsNamingStrategy
 import dk.mehmedbasic.jsonast.conversion.JacksonConverter
@@ -27,20 +26,6 @@ class TestBaseNodeParser {
         JsonNode tree = readTree(file)
         convertJackson(tree, 20)
     }
-
-//    @Test
-    void ownParserTest22Million() {
-        ownParserRun("src/main/resources/large_files/file_22_million.json", 20)
-    }
-
-//    @Test
-    void jacksonAndConverter22Million() {
-        def file = "src/main/resources/large_files/file_22_million.json"
-
-        JsonNode tree = readTree(file)
-        convertJackson(tree, 20)
-    }
-
     private static JsonNode readTree(String file) {
         def mapper = new ObjectMapper()
 
@@ -53,10 +38,9 @@ class TestBaseNodeParser {
     }
 
     private static void convertJackson(JsonNode root, int runs) {
-        for (int i = 0; i < runs; i++) {
+        runs.times {
             TaskTimer.timeTaken("Converting to BaseNode document") {
-                JsonDocument document = JacksonConverter.asTransformable(root)
-
+                JacksonConverter.asTransformable(root)
             }
         }
     }
@@ -65,7 +49,7 @@ class TestBaseNodeParser {
     private static void ownParserRun(String file, int runs) {
         def parser = new BaseNodeParser(new InlineIdsNamingStrategy())
 
-        for (int i = 0; i < runs; i++) {
+        runs.times {
             TaskTimer.timeTaken("Reading BaseNode tree") {
                 parser.parse(new FileInputStream(new File(file)))
             }

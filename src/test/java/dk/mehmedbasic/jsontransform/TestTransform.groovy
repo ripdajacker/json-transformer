@@ -62,7 +62,7 @@ class TestTransform {
         def function = new ManipulateValueFunction() {
             @Override
             void apply(JsonValueNode node) {
-                node.value = node.value + " until end of Season 5"
+                node.value += " until end of Season 5"
             }
         }
 
@@ -81,7 +81,7 @@ class TestTransform {
         def ageOneYear = new ManipulateValueFunction() {
             @Override
             void apply(JsonValueNode node) {
-                node.value = node.value + 1
+                node.value += 1
             }
         }
 
@@ -145,7 +145,7 @@ class TestTransform {
         def residents = document.select(selector)
         Assert.assertEquals("Selection should have 1 child", 1, residents.length)
 
-        def residentsArray = residents.roots.asList().get(0)
+        def residentsArray = residents.roots.asList()[0]
         def child = residentsArray.get(0)
         Assert.assertEquals("The child should be Ratty McRatson", "Ratty McRatson", child.get("name").value)
     }

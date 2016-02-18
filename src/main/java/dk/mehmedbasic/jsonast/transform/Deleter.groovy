@@ -33,7 +33,7 @@ final class Deleter extends TransformStrategy {
         } else if (index >= 0) {
             def nodes = new ArrayList<BaseNode>(root.roots)
             for (BaseNode node : nodes) {
-                if (node.isObject() || node.isArray()) {
+                if (node.object || node.array) {
                     def get = node.get(index)
                     nodeChanged(root, get)
                     node.removeNode(get)

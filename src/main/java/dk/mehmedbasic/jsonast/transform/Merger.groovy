@@ -29,7 +29,7 @@ final class Merger extends TransformStrategy {
             def newDestinations = queryRoot.select(selector)
 
             BaseNode destination = null
-            if (newDestinations.isEmpty()) {
+            if (newDestinations.empty) {
                 log.debug("Found zero potential destinations for ($source, $selector)")
             } else if (newDestinations.size() > 1) {
                 def closest = newDestinations.closestTo(source)
@@ -45,22 +45,22 @@ final class Merger extends TransformStrategy {
             }
 
             if (destination) {
-                if (destination.isObject()) {
+                if (destination.object) {
                     // Destination is object, add the source
                     destination.addChild(source)
-                } else if (destination.isArray()) {
+                } else if (destination.array) {
                     // Destination is array, add the source and wipe the name
                     source.identifier.name = null
                     destination.addChild(source)
-                } else if (destination.isValueNode()) {
+                } else if (destination.valueNode) {
                     // Destination is JsonValue, apply the given function
                     if (function) {
                         def valueNode = destination as JsonValueNode
-                        if (source.isArray()) {
+                        if (source.array) {
                             function.apply(source as JsonArrayNode, valueNode)
-                        } else if (source.isObject()) {
+                        } else if (source.object) {
                             function.apply(source as JsonObjectNode, valueNode)
-                        } else if (source.isValueNode()) {
+                        } else if (source.valueNode) {
                             function.apply(source as JsonValueNode, valueNode)
                         }
 

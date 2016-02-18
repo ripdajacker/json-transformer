@@ -132,7 +132,7 @@ class RunThesisExamples {
 
         def closure = { JsonValueNode it ->
             String newValue = it.stringValue().toLowerCase()
-            it.setValue(newValue)
+            it.value = newValue
         }
 
         document.transform("person")
@@ -147,7 +147,7 @@ class RunThesisExamples {
         document.with {
             transform("person").add("john", "doe").apply()
             transform("name").manipulateValue {
-                it.setValue(it.stringValue().toUpperCase())
+                it.value = it.stringValue().toUpperCase()
             }.apply()
         }
     }
