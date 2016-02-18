@@ -69,8 +69,12 @@ class BaseNodeParser {
             parser.nextToken();
             BaseNode value = deserializeAny(parser);
             value.identifier = strategy.toTransformableName(fieldName, node)
+
+            BaseNode.appendClasses(value)
             node.addChild(value);
         }
+
+        BaseNode.appendClasses(node)
         return node;
     }
 
@@ -80,6 +84,7 @@ class BaseNodeParser {
         while (parser.nextToken() != JsonToken.END_ARRAY) {
             node.addChild(deserializeAny(parser));
         }
+        BaseNode.appendClasses(node)
         return node;
     }
 
@@ -105,6 +110,7 @@ class BaseNodeParser {
                 } else {
                     node.setValue(parser.longValue as long)
                 }
+                BaseNode.appendClasses(node)
                 return node
 
             case JsonToken.VALUE_NUMBER_FLOAT:

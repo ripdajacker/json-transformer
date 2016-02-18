@@ -26,7 +26,7 @@ final class Deleter extends TransformStrategy {
         if (name) {
             def nodes = new LinkedHashSet<BaseNode>(root.roots)
             for (BaseNode node : nodes) {
-                def get = node.get(name)
+                BaseNode get = node.get(name)
                 nodeChanged(root, get)
                 node.removeNode(get)
             }
@@ -34,7 +34,7 @@ final class Deleter extends TransformStrategy {
             def nodes = new ArrayList<BaseNode>(root.roots)
             for (BaseNode node : nodes) {
                 if (node.object || node.array) {
-                    def get = node.get(index)
+                    BaseNode get = node.get(index)
                     nodeChanged(root, get)
                     node.removeNode(get)
                 }
