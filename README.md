@@ -60,7 +60,10 @@ Combinations of selectors are supported:
 
 * `ancestorSelector selector` gets all nodes matching `selector` that also have a ancestor matching `ancestorSelector`.
 * `parentSelector > selector` gets all nodes matching `selector` that have a parent matching `parentSelector`.
+* `[keyName]` gets all nodes that have a child named `keyName`. 
 * `selector[keyName^=Prefix]` gets all nodes matching  `selector` that also have a child named `keyName` whose value starts with `Prefix`. 
+* `selector[keyName*=Substring]` gets all nodes matching  `selector` that also have a child named `keyName` whose value contains `Substring`. 
+* `selector[keyName=SomeName]` gets all nodes matching  `selector` that also have a child named `keyName` whose value equals `SomeName`. 
  
  
 ### Some transformations 
