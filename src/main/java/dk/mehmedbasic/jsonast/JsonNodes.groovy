@@ -98,13 +98,14 @@ class JsonNodes implements Iterable<BaseNode> {
     }
 
     /**
-     * Gets the parents for this set of roots.
+     * Gets the parents for this set of roots, null parents are ignored.
+     *
+     * The new nodes object may contain fewer roots than this.
      *
      * @return the parents of this.
      */
     JsonNodes parent() {
-        // TODO
-        def result = new JsonNodes(document)
+        def result = new JsonNodes(this)
         for (BaseNode root : roots) {
             if (root.parent) {
                 result.addRoot(root.parent)
@@ -121,10 +122,9 @@ class JsonNodes implements Iterable<BaseNode> {
      * @return the parents.
      */
     JsonNodes parent(String selector) {
-        // TODO
         def potentials = document.select(selector)
 
-        def result = new JsonNodes(document)
+        def result = new JsonNodes(this)
         for (BaseNode root : roots) {
             def relevantParent = findRelevantParent(root, potentials.roots)
             if (relevantParent) {
