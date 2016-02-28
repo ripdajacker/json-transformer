@@ -9,7 +9,7 @@ import groovy.util.logging.Slf4j
  */
 @PackageScope
 @Slf4j
-final class Merger extends TransformStrategy {
+final class Merger extends TransformationFunction {
     final String selector
     MergeValueFunction function
 

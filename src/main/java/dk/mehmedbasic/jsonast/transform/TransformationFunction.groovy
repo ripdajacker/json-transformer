@@ -9,7 +9,7 @@ import groovy.transform.TypeChecked
  * Transforms JSON AST according to the implementation.
  */
 @TypeChecked
-abstract class TransformStrategy {
+abstract class TransformationFunction {
     abstract void apply(JsonDocument document, JsonNodes root)
 
 

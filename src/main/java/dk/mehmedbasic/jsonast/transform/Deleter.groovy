@@ -9,7 +9,7 @@ import groovy.transform.TypeChecked
  * Deletes child nodes
  */
 @TypeChecked
-final class Deleter extends TransformStrategy {
+final class Deleter extends TransformationFunction {
     String name
     int index = -1
 

@@ -11,7 +11,7 @@ import groovy.transform.TypeChecked
  */
 @TypeChecked
 @PackageScope
-final class Renamer extends TransformStrategy {
+final class Renamer extends TransformationFunction {
     final String to
     final String from
 
