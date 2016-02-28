@@ -10,7 +10,7 @@ import groovy.transform.PackageScope
  * Adds a value
  */
 @PackageScope
-final class AddValue extends TransformStrategy {
+final class AddValue extends TransformationFunction {
     private JsonType type = JsonType.Value
     private Object value
     private String name

@@ -13,7 +13,7 @@ import groovy.util.logging.Slf4j
 @Slf4j
 @PackageScope
 @CompileStatic
-final class Mover extends TransformStrategy {
+final class Mover extends TransformationFunction {
     final String selector
 
     Mover(String selector) {

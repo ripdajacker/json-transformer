@@ -9,7 +9,7 @@ import groovy.transform.TypeChecked
  * Partitions a node given a list of List<String>.
  */
 @TypeChecked
-final class Partitioner extends TransformStrategy {
+final class Partitioner extends TransformationFunction {
     private List<Tuple2<String, List<String>>> partitionKeys = []
 
     Partitioner(List<List<String>> partitionKeys) {

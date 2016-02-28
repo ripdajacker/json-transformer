@@ -12,9 +12,7 @@ import groovy.transform.TypeChecked
  */
 @TypeChecked
 final class Transformer {
-
-
-    List<TransformStrategy> functions = []
+    List<TransformationFunction> functions = []
     String selector
     JsonNodes destination
 
@@ -115,7 +113,7 @@ final class Transformer {
 
     JsonNodes apply() {
         if (destination) {
-            for (TransformStrategy function : functions) {
+            for (TransformationFunction function : functions) {
                 function.apply(destination.document, destination.select(selector))
             }
         }
