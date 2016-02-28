@@ -20,6 +20,9 @@ class JsonSelectionEngine {
     JsonSelectionEngine(String selector) {
         def parser = new CSSOMParser(new SACParserCSS3())
         selectorList = parser.parseSelectors(new InputSource(new StringReader(selector)))
+        if (selectorList == null) {
+            throw new IllegalArgumentException("Selector '$selector' could not be parsed")
+        }
     }
 
     Selector parse() {
@@ -50,18 +53,31 @@ class JsonSelectionEngine {
         if (condition instanceof AndConditionImpl) {
             return new AndFilter(fromCondition(condition.firstCondition), fromCondition(condition.secondCondition))
         } else if (condition instanceof PrefixAttributeConditionImpl) {
-            def prefix = { String value, String prefix -> value.startsWith(prefix) }
-            return new PropertyConditionSelector(condition.localName, condition.value, prefix)
-        } else if (condition instanceof PseudoClassConditionImpl) {
-            // TODO parse pseudo classes
-            throw new UnsupportedOperationException("Pseudo classes are not yet supported")
+            def prefix = condition.value
+            def closure = { String value -> value.startsWith(prefix) }
+            return new PropertyConditionSelector(condition.localName, closure)
         } else if (condition instanceof ClassConditionImpl) {
             return new ClassConditionSelector(condition.value)
         } else if (condition instanceof IdConditionImpl) {
             return new IdConditionSelector(condition.value)
+        } else if (condition instanceof AttributeConditionImpl) {
+            def attributeCondition = condition as AttributeConditionImpl
+            def name = attributeCondition.localName
+            def value = attributeCondition.value
+            if (value) {
+                def valueEquals = { String property -> property?.equals(value) }
+                return new PropertyConditionSelector(name, valueEquals)
+            } else {
+                def nameEquals = { String propertyName -> propertyName.equals(name) }
+                return new PropertyNameCondition(nameEquals)
+            }
+        } else if (condition instanceof SubstringAttributeConditionImpl) {
+            def substring = condition as SubstringAttributeConditionImpl
+            return new PropertyConditionSelector(condition.localName, { String value -> value?.contains(substring.value) })
         }
-        return null;
+        throw new UnsupportedOperationException("The given CSS condition is not supported: ${condition.class.name}, $condition");
     }
+
 
     private static class ClassConditionSelector extends NodeFilter {
         String className
@@ -97,16 +113,30 @@ class JsonSelectionEngine {
         }
     }
 
+    private static class PropertyNameCondition extends NodeFilter {
+        Closure<Boolean> condition
+
+        PropertyNameCondition(Closure<Boolean> condition) {
+            this.condition = condition
+        }
+
+        @Override
+        boolean apply(BaseNode node, Integer index) {
+            if (node.identifier.name) {
+                return condition.call(node.identifier.name)
+            }
+            return false
+        }
+    }
+
     private static class PropertyConditionSelector extends NodeFilter {
 
         String propertyName
-        String parameter
         Closure<Boolean> condition
 
-        PropertyConditionSelector(String propertyName, String parameter, Closure<Boolean> condition) {
+        PropertyConditionSelector(String propertyName, Closure<Boolean> condition) {
             this.propertyName = propertyName
             this.condition = condition
-            this.parameter = parameter
         }
 
         @Override
@@ -117,7 +147,7 @@ class JsonSelectionEngine {
                 def child = objectNode.get(propertyName)
                 if (child) {
                     if (child.valueNode) {
-                        return condition.call((child as JsonValueNode).stringValue(), parameter)
+                        return condition.call((child as JsonValueNode).stringValue())
                     }
                 }
             }

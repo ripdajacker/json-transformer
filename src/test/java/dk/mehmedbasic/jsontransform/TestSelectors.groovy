@@ -2,8 +2,6 @@ package dk.mehmedbasic.jsontransform
 
 import dk.mehmedbasic.jsonast.JsonDocument
 import dk.mehmedbasic.jsonast.JsonObjectNode
-import dk.mehmedbasic.jsonast.conversion.JacksonConverter
-import org.codehaus.jackson.map.ObjectMapper
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -16,9 +14,7 @@ class TestSelectors {
 
     @Before
     void prepare() {
-        def mapper = new ObjectMapper()
-        def tree = mapper.readTree(new FileInputStream(new File("src/main/resources/move-rename.json")))
-        document = JacksonConverter.asTransformable(tree)
+        document = JsonDocument.parse(new FileInputStream(new File("src/main/resources/move-rename.json")))
     }
 
     @Test
@@ -32,8 +28,6 @@ class TestSelectors {
 
     @Test
     void selectWithPrefix() {
-//        Assert.assertEquals("Jon should have zero elements", 0, document.select("residents[name^=Jon]").length)
-
         def prefixed = document.select("residents .object[name^=Ratty]")
         Assert.assertEquals("Should have one element", 1, prefixed.length)
 
