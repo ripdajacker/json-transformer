@@ -35,10 +35,4 @@ class TestAdvancedSelectors {
         def selection = document.select("[name*='Ratty']")
         Assert.assertEquals("Selection should have one result", 1, selection.size())
     }
-
-    @Test
-    void testfdsafdsa() {
-        def selection = document.select("name.foo")
-        Assert.assertEquals("Selection should have one result", 1, selection.size())
-    }
 }
