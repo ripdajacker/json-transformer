@@ -165,20 +165,47 @@ abstract class BaseNode {
     }
 
     /**
-     * Calculates the number of jumps to the common ancestor to the given node.
+     * Calculates the distance between this nodes and the given node. 
      *
      * @param baseNode the node in question.
      * @return the number of jumps to the first common ancestor.
      */
-    int editDistance(BaseNode baseNode) {
-        def thisParents = parents()
-        def thatParents = baseNode.parents()
+    int distanceTo(BaseNode baseNode) {
+        def parentNotReversed = parents()
 
-        int previousSize = Math.max(thisParents.size(), thatParents.size())
+        if (parentNotReversed.contains(baseNode)) {
+            return parentNotReversed.indexOf(baseNode)
+        } else {
+            def thisParents = parentNotReversed.reverse()
+            def thatParents = baseNode.parents().reverse()
 
-        thisParents.retainAll(thatParents)
+            int cutoff = Math.min(thisParents.size(), thatParents.size())
 
-        previousSize - thisParents.size()
+            def thisCut = thisParents.subList(0, cutoff)
+            def thatCut = thatParents.subList(0, cutoff)
+
+
+            def lca = findLcaAndDepth(thisCut, thatCut)
+
+            def distanceToRoot = thisParents.size() + thatParents.size()
+            def twoLca = 2 * lca.second
+            return distanceToRoot - twoLca - 1
+        }
+    }
+
+    private static Tuple2<BaseNode, Integer> findLcaAndDepth(List<BaseNode> thisCut, List<BaseNode> thatCut) {
+        BaseNode previous = null
+        for (int i = 0; i < thatCut.size(); i++) {
+            def a = thisCut[i]
+            def b = thatCut[i]
+
+            if (!a.is(b)) {
+
+                return new Tuple2<BaseNode, Integer>(previous, i - 1)
+            }
+            previous = a
+        }
+        return new Tuple2<BaseNode, Integer>(previous, thatCut.size() - 1)
     }
 
     static void appendClasses(BaseNode source) {

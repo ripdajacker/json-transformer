@@ -19,9 +19,7 @@ class RunThesisExamples {
 
     @Before
     void prepare() {
-        def mapper = new ObjectMapper()
-        def tree = mapper.readTree(new FileInputStream(new File("src/main/resources/thesis-example.json")))
-        document = JacksonConverter.asTransformable(tree)
+        document = JsonDocument.parse(new FileInputStream(new File("src/main/resources/thesis-example.json")))
     }
 
     @Test
