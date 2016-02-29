@@ -189,7 +189,7 @@ class JsonNodes implements Iterable<BaseNode> {
     List<Tuple2<BaseNode, Integer>> closestTo(BaseNode node) {
         List<Tuple2<BaseNode, Integer>> distance = []
         for (BaseNode that : roots.findAll { it != node }) {
-            distance << new Tuple2<BaseNode, Integer>(that, node.editDistance(that))
+            distance << new Tuple2<BaseNode, Integer>(that, node.distanceTo(that))
         }
         Collections.sort(distance, new Comparator<Tuple2<BaseNode, Integer>>() {
             @Override
