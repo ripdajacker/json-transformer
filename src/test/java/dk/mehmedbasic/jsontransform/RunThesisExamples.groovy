@@ -4,6 +4,7 @@ import dk.mehmedbasic.jsonast.JsonDocument
 import dk.mehmedbasic.jsonast.JsonType
 import dk.mehmedbasic.jsonast.JsonValueNode
 import dk.mehmedbasic.jsonast.conversion.JacksonConverter
+import dk.mehmedbasic.jsonast.transform.MergeValueFunction
 import groovy.transform.TypeChecked
 import org.codehaus.jackson.map.ObjectMapper
 import org.junit.After
@@ -122,6 +123,49 @@ class RunThesisExamples {
                 .renameChild("pet", "bingo_the_dog")
                 .apply()
 
+    }
+
+
+    @Test
+    void move() {
+        println("Move the 'name' node to a newly created array")
+        document.select("person").transform().addJson("array", "[]").apply()
+
+        document.transform("name")
+                .moveTo("array")
+                .apply()
+    }
+
+
+    @Test
+    void mergeAndRename() {
+        println("Merge the 'name' node with occupation, rename the node to 'name_and_occupation'")
+
+        def mergeFunction = new MergeValueFunction() {
+            @Override
+            void apply(JsonValueNode source, JsonValueNode destination) {
+                destination.value = "${source.stringValue()}, ${destination.stringValue()}"
+            }
+        }
+
+        document
+                .transform("name").merge("occupation", mergeFunction).apply()
+                .select("name").parent().transform().deleteChild("name").apply()
+                .transform("occupation").renameTo("name_and_occupation").apply()
+    }
+
+    @Test
+    void simpleMerge() {
+        println("Merge the 'name' node with occupation")
+
+        def mergeFunction = new MergeValueFunction() {
+            @Override
+            void apply(JsonValueNode source, JsonValueNode destination) {
+                destination.value = "${source.stringValue()}, ${destination.stringValue()}"
+            }
+        }
+
+        document.transform("name").merge("occupation", mergeFunction).apply()
     }
 
     @Test
