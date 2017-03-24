@@ -7,7 +7,6 @@ import org.codehaus.jackson.map.ObjectMapper
  * Generates random json
  */
 class RandomJsonGenerator {
-    private
     static List<String> names = ["node", "cake", "john", "fun", "horse", "hancock", "foobar", "stein", "lol", "portapotty", "askepot"]
     private static long count = 0
 

@@ -26,6 +26,7 @@ class TestBaseNodeParser {
         JsonNode tree = readTree(file)
         convertJackson(tree, 20)
     }
+
     private static JsonNode readTree(String file) {
         def mapper = new ObjectMapper()
 
