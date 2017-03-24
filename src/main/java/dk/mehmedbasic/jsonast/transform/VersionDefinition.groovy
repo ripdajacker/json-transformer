@@ -29,10 +29,10 @@ class VersionDefinition implements Comparable<VersionDefinition> {
         this.closure = closure
     }
 /**
-     * Executes the transformations described by this definition.
-     *
-     * @param delegate the document to execute the transformations on.
-     */
+ * Executes the transformations described by this definition.
+ *
+ * @param delegate the document to execute the transformations on.
+ */
     @SuppressWarnings("JavaStylePropertiesInvocation")
     void execute(JsonDocument delegate) {
         if (script != null) {
