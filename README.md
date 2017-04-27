@@ -39,6 +39,7 @@ Given a JSON document:
 You can select all nodes with the name `stop` by writing:
 
 ```groovy
+def document = JsonDocument.parse(...) // some input file
 document.select("stop")
 ```
 
@@ -49,6 +50,8 @@ You can write some more complex selectors:
 ```groovy
 document.select("subtree source")
 ```
+
+This will select all nodes with the name `source` that have a ancestor with the name `subtree`.
 
 Following selectors are supported:
 
@@ -68,8 +71,9 @@ Combinations of selectors are supported:
  
 ### Some transformations 
 
+Besides the selector language, the framework allows transformation of JSON trees.
 
-Using the DSL one can write:
+An example:
 
 ```groovy
 document.transform("source")
