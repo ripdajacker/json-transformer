@@ -15,19 +15,20 @@ transformations {
 
     def first = new MergeValueFunction() {
         @Override
-        void apply(JsonValueNode source, JsonValueNode destination) {
-            def list = source.stringValue().split(" ").toList()
+        void applyValue(JsonValueNode source, JsonValueNode destination) {
+          def list = source.stringValue().split(" ").toList()
 
-            destination.value = list.subList(0, list.size() - 1).join(" ")
+          destination.value = list.subList(0, list.size() - 1).join(" ")
         }
     }
     def last = new MergeValueFunction() {
-        @Override
-        void apply(JsonValueNode source, JsonValueNode destination) {
-            def list = source.stringValue().split(" ").toList()
 
-            destination.value = list.last()
-        }
+      @Override
+      void applyValue(JsonValueNode source, JsonValueNode destination) {
+        def list = source.stringValue().split(" ").toList()
+
+        destination.value = list.last()
+      }
     }
 
     transform("person billy")

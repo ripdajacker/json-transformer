@@ -9,8 +9,8 @@ comment "Merge first and last names into a single field"
 transformations {
     def merger = new MergeValueFunction() {
         @Override
-        void apply(JsonValueNode source, JsonValueNode destination) {
-            destination.value = source.value + " " + destination.stringValue()
+        void applyValue(JsonValueNode source, JsonValueNode destination) {
+          destination.value = source.value + " " + destination.stringValue()
         }
     }
 
